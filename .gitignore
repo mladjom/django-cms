@@ -51,4 +51,11 @@ Thumbs.db
 .ipynb_checkpoints/
 __pycache__/
 
+# Node.js
+node_modules/
+theme/node_modules/
+theme/package-lock.json
+package-lock.json
+
+
 todos/
