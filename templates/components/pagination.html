@@ -1,0 +1,9 @@
+<div class="flex justify-between items-center mt-6">
+    {% if posts.has_previous %}
+    <a href="?page={{ posts.previous_page_number }}" class="text-gray-600 hover:text-gray-900">&laquo; Previous</a>
+    {% endif %}
+    <span>Page {{ posts.number }} of {{ posts.paginator.num_pages }}</span>
+    {% if posts.has_next %}
+    <a href="?page={{ posts.next_page_number }}" class="text-gray-600 hover:text-gray-900">Next &raquo;</a>
+    {% endif %}
+</div>

@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+
+
+{% block content %}
+<div class="max-w-5xl mx-auto">
+    {% include "components/breadcrumbs.html" %}
+
+    <header class="mb-12 text-center">
+        <h1 class="text-4xl font-bold text-brand-primary mb-4">
+            Blog
+        </h1>
+        <p class="text-text-secondary max-w-xl mx-auto">
+            {{ meta_description }}
+        </p>
+    </header>
+    
+    {% if featured_posts %}
+    <section class="mb-12">
+        <h2 class="text-2xl font-bold mb-6 text-brand-primary">
+            Featured Posts
+        </h2>
+        <div class="grid md:grid-cols-3 gap-6">
+            {% for post in featured_posts %}
+                {% include "components/post_card.html" %}
+            {% endfor %}
+        </div>
+    </section>
+    {% endif %}
+    
+    <div class="grid md:grid-cols-3 gap-6">
+        {% for post in posts %}
+            {% include "components/post_card.html" %}
+        {% endfor %}
+    </div>
+    
+    {% include "components/pagination.html" %}
+</div>
+{% endblock %}

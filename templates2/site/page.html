@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+
+{% block title %}{{ page.meta_title|default:page.title }}{% endblock %}
+
+{% block content %}
+<article class="max-w-3xl mx-auto">
+    {% include "components/breadcrumbs.html" %}
+    
+    <header class="mb-8">
+        <h1 class="text-3xl md:text-4xl font-bold text-brand-primary">
+            {{ page.title }}
+        </h1>
+    </header>
+    
+    <div class="prose max-w-none">
+        {{ page.content|safe }}
+    </div>
+</article>
+{% endblock %}
