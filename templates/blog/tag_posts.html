@@ -1,13 +1,28 @@
 {% extends "base.html" %}
-{% block title %}Posts Tagged "{{ tag.name }}" - {{ site_name }}{% endblock %}
+
+{% block title %}Posts tagged with {{ tag.name }}{% endblock %}
+
 {% block content %}
-<div class="container mx-auto px-4 py-6">
-    <h1 class="text-3xl font-bold mb-4">Tag: {{ tag.name }}</h1>
-    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+<div class="max-w-5xl mx-auto">
+    {% include "components/breadcrumbs.html" %}
+    
+    <header class="mb-8">
+        <h1 class="text-3xl md:text-4xl font-bold text-brand-primary">
+            #{{ tag.name }}
+        </h1>
+        {% if tag.meta_description %}
+        <p class="text-text-secondary mt-4">
+            {{ tag.meta_description }}
+        </p>
+        {% endif %}
+    </header>
+    
+    <div class="grid md:grid-cols-3 gap-6">
         {% for post in posts %}
-        {% include 'components/post_card.html' %}
+            {% include "components/post_card.html" %}
         {% endfor %}
     </div>
-    {% include 'components/pagination.html' %}
+    
+    {% include "components/pagination.html" %}
 </div>
 {% endblock %}

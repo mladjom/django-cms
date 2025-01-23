@@ -1,0 +1,9 @@
+<nav class="text-gray-600 text-sm mb-6">
+    <ul class="flex space-x-2">
+        <li><a href="/" class="hover:text-gray-900">Home</a></li>
+        {% for crumb in breadcrumbs %}
+        <li>/</li>
+        <li><a href="{{ crumb.url }}" class="hover:text-gray-900">{{ crumb.name }}</a></li>
+        {% endfor %}
+    </ul>
+</nav>

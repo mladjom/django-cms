@@ -1,15 +1,19 @@
-<!-- site/page.html -->
 {% extends "base.html" %}
-{% block title %}{{ page.title }} - {{ site_name }}{% endblock %}
+
+{% block title %}{{ page.meta_title|default:page.title }}{% endblock %}
+
 {% block content %}
-<div class="container mx-auto px-4 py-6">
-    <article class="prose lg:prose-xl mx-auto">
-        <header class="mb-4">
-            <h1 class="text-4xl font-bold">{{ page.title }}</h1>
-        </header>
-        <div>
-            {{ page.content|safe }}
-        </div>
-    </article>
-</div>
+<article class="max-w-3xl mx-auto">
+    {% include "components/breadcrumbs.html" %}
+    
+    <header class="mb-8">
+        <h1 class="text-3xl md:text-4xl font-bold text-brand-primary">
+            {{ page.title }}
+        </h1>
+    </header>
+    
+    <div class="prose max-w-none">
+        {{ page.content|safe }}
+    </div>
+</article>
 {% endblock %}

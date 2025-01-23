@@ -1,15 +1,38 @@
-<!-- post_list.html -->
 {% extends "base.html" %}
-{% block title %}Blog Posts - {{ site_name }}{% endblock %}
+{% load i18n %}
+
 {% block content %}
-<div class="container mx-auto px-4 py-6">
-    <h1 class="text-3xl font-bold mb-4">Blog</h1>
-    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+<div class="max-w-5xl mx-auto">
+    {% include "components/breadcrumbs.html" %}
+
+    <header class="mb-12 text-center">
+        <h1 class="text-4xl font-bold text-brand-primary mb-4">
+            Blog
+        </h1>
+        <p class="text-text-secondary max-w-xl mx-auto">
+            {{ meta_description }}
+        </p>
+    </header>
+    
+    {% if featured_posts %}
+    <section class="mb-12">
+        <h2 class="text-2xl font-bold mb-6 text-brand-primary">
+            Featured Posts
+        </h2>
+        <div class="grid md:grid-cols-3 gap-6">
+            {% for post in featured_posts %}
+                {% include "components/post_card.html" %}
+            {% endfor %}
+        </div>
+    </section>
+    {% endif %}
+    
+    <div class="grid md:grid-cols-3 gap-6">
         {% for post in posts %}
-        {% include 'components/post_card.html' %}
+            {% include "components/post_card.html" %}
         {% endfor %}
     </div>
-    {% include 'components/pagination.html' %}
+    
+    {% include "components/pagination.html" %}
 </div>
 {% endblock %}
-

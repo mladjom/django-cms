@@ -1,3 +1,10 @@
+APP_SETTINGS = {
+    'NAME': 'Site Name',
+    'DESCRIPTION': 'Site Description',
+    'TAGLINE': 'Insights and Stories',
+    'URL': 'https://www.example.com',
+    'EMAIL': '.'.join(['info', 'example', 'com']),
+}
 # Image Processing Settings
 IMAGE_SETTINGS = {
     # Default image sizes for responsive images
@@ -17,11 +24,4 @@ IMAGE_SETTINGS = {
         'WIDTH': 768,
         'ASPECT_RATIO': (16, 10)
     }
-}
-
-SITE = {
-    'NAME': 'Site Name',
-    'DESCRIPTION': 'Site Description',
-    'URL': 'https://www.example.com',
-    'EMAIL': '.'.join(['info', 'example', 'com']),
 }

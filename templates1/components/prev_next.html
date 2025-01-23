@@ -1,0 +1,9 @@
+<!-- components/prev_next.html -->
+<div class="flex justify-between items-center mt-6">
+    {% if previous_post %}
+    <a href="{{ previous_post.get_absolute_url }}" class="text-gray-600 hover:text-gray-900">&laquo; {{ previous_post.title }}</a>
+    {% endif %}
+    {% if next_post %}
+    <a href="{{ next_post.get_absolute_url }}" class="text-gray-600 hover:text-gray-900">{{ next_post.title }} &raquo;</a>
+    {% endif %}
+</div>
