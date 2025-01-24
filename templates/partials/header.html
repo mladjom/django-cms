@@ -1,7 +1,8 @@
+{% load i18n %}
 <header class="bg-white shadow-sm">
     <div class="container mx-auto px-4 py-4 flex items-center justify-between">
         <a href="/" class="text-2xl font-bold text-brand-primary hover:text-brand-accent">
-            Your Site Name
+            {{ site_name }}
         </a>
         
         <nav aria-label="Main Navigation">
@@ -20,7 +21,6 @@
                 </li>
                 <li><a href="/about/" class="text-gray-600 hover:text-gray-900">About</a></li>
 
-                <!-- Add more navigation items as needed -->
             </ul>
         </nav>
     </div>

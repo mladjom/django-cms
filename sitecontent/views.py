@@ -8,27 +8,41 @@ from .models import Post, Category, Tag, Page
 from django.utils.translation import gettext_lazy as _
 import json
 from datetime import datetime
+import logging
+
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.INFO)  # Explicitly set to INFO level if necessary
+
+if not logger.handlers:
+    handler = logging.StreamHandler()
+    handler.setLevel(logging.INFO)
+    formatter = logging.Formatter('%(levelname)s %(message)s')
+    handler.setFormatter(formatter)
+    logger.addHandler(handler)
 
 class ViewCountMixin:
     """Mixin to handle view count incrementing for models"""
-    # def get_object(self, queryset=None):
-    #     obj = super().get_object(queryset)
-    #     obj.view_count = F('view_count') + 1
-    #     obj.save(update_fields=['view_count'])
-    #     # Refresh from db to get actual view count, not F expression
-    #     obj.refresh_from_db()
-    #     return obj
 
     def get_object(self, queryset=None):
-        with atomic():
-            obj = super().get_object(queryset)
-            # Get the model class
-            model = obj.__class__
-            # Update the view count atomically
-            model.objects.filter(pk=obj.pk).update(view_count=F('view_count') + 1)
-            # Refresh from db to get actual view count
-            obj.refresh_from_db()
-            return obj
+        if not hasattr(self, '_object'):
+            self._object = super().get_object(queryset)
+            with atomic():
+                try:
+                    self._object.view_count = F('view_count') + 1
+                    self._object.save(update_fields=['view_count'])
+                    print("Logger should trigger here")
+
+                    logger.info(f"View count incremented for {self._object.__class__.__name__} with ID: {self._object.pk}")
+                except Exception as e:
+                    logger.error(f"Failed to increment view count: {e}")
+                    raise
+                self._object.refresh_from_db()
+        return self._object
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['object'] = self.get_object()  # Single call to get_object
+        return context
 
 class SEOMetadataMixin:
     """Mixin to handle SEO metadata"""

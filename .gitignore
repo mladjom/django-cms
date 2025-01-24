@@ -13,12 +13,16 @@ ENV/
 
 # Django stuff:
 *.log
+*.pot
+*.pyc
 *.sqlite3
 db.sqlite3
 
 # Media and static files (if not using separate storage for static/media files)
 media/
 static/
+staticfiles/
+static/css/style.css
 
 # IDE/editor files
 .idea/
@@ -36,6 +40,10 @@ Thumbs.db
 .env
 .env.*
 *.env
+.venv
+env/
+venv/
+ENV/
 
 # Coverage reports
 .coverage
@@ -53,9 +61,18 @@ __pycache__/
 
 # Node.js
 node_modules/
+npm-debug.log
 theme/node_modules/
 theme/package-lock.json
 package-lock.json
 
+# Old/Backup files #
+*.old
+*.backup
+*.orig
+
+# Specific to current situation #
+views.old.py
+templates.old/
 
 todos/

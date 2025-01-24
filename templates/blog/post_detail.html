@@ -16,6 +16,7 @@
             
             <div>
                 <span class="font-medium">{{ post.author.get_full_name }}</span>
+                <span class="font-medium">{{ post.view_count }}</span>
                 <span class="mx-2">•</span>
                 <time datetime="{{ post.created_at|date:'Y-m-d' }}">
                     {{ post.created_at|date:'F d, Y' }}
