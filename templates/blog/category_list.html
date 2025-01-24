@@ -32,6 +32,10 @@
                 <img src="{{ category.featured_image.url }}" 
                      alt="{{ category.name }}"
                      class="w-16 h-16 object-cover rounded">
+                {% else %}      
+                    <img src="https://placehold.co/600x400" 
+                         alt="{{ category.name }}"
+                         class="w-16 h-16 object-cover rounded">
                 {% endif %}
             </div>
         </div>

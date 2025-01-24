@@ -1,4 +1,6 @@
 {% extends "base.html" %}
+{% load i18n %}
+{% load blog_filters %}
 
 {% block content %}
 <article class="max-w-3xl mx-auto">
@@ -17,6 +19,7 @@
             <div>
                 <span class="font-medium">{{ post.author.get_full_name }}</span>
                 <span class="font-medium">{{ post.view_count }}</span>
+                <span class="font-medium">{{ post.view_count }}</span>
                 <span class="mx-2">•</span>
                 <time datetime="{{ post.created_at|date:'Y-m-d' }}">
                     {{ post.created_at|date:'F d, Y' }}
@@ -31,6 +34,12 @@
              alt="{{ post.title }}"
              class="w-full h-auto rounded-lg object-cover">
     </figure>
+    {% else %}
+    <figure class="mb-8">
+        <img src="https://placehold.co/768x432" 
+             alt="{{ post.title }}"
+             class="w-full h-auto rounded-lg object-cover">    </figure>
+
     {% endif %}
     
     <div class="prose max-w-none">

@@ -1,6 +1,5 @@
 {% load static %}
 {% load i18n %}
-
 <!DOCTYPE html>
 <html lang="{{ LANGUAGE_CODE }}" class="scroll-smooth">
 <head>    
@@ -13,33 +12,17 @@
     {% if schema_breadcrumbs %}
     <script type="application/ld+json">{{ schema_breadcrumbs|safe }}</script>
     {% endif %}    
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link href="{% static 'css/style.css' %}" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <meta name="robots" content="noindex,follow" />
+    <link rel="icon" href="{% static 'favicon.ico' %}" type="image/x-icon" />
+   <link href="{% static 'css/style.css' %}" rel="stylesheet">
 </head>
 <body class="antialiased text-text-primary bg-white leading-normal tracking-normal">
-    <!-- Accessibility: Skip to main content link -->
-    <a href="#main-content" class="sr-only focus:not-sr-only">
-        Skip to main content
-    </a>
-
+    <a href="#main-content" class="sr-only focus:not-sr-only">{% trans 'Skip to main content' %}</a>
     {% include "partials/header.html" %}
-
-    <main id="main-content" class="container mx-auto px-4 py-8">
-        {% block content %}{% endblock %}
-    </main>
-
+    <main id="main-content" class="container mx-auto px-4 py-8">{% block content %}{% endblock %}</main>
     {% include "partials/footer.html" %}
-
-    <script>
-        // Minimal JavaScript for accessibility and interactivity
-        document.addEventListener('DOMContentLoaded', () => {
-            // Add focus styles for keyboard navigation
-            const focusableElements = document.querySelectorAll('a, button, input, select, textarea');
-            focusableElements.forEach(el => {
-                el.addEventListener('focus', () => el.classList.add('focus:ring-2', 'focus:ring-brand-accent'));
-                el.addEventListener('blur', () => el.classList.remove('focus:ring-2', 'focus:ring-brand-accent'));
-            });
-        });
-    </script>
 </body>
 </html>

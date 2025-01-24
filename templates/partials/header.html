@@ -1,27 +1,25 @@
 {% load i18n %}
-<header class="bg-white shadow-sm">
-    <div class="container mx-auto px-4 py-4 flex items-center justify-between">
+<header class="bg-white shadow-sm sticky top-0 z-50">
+    <div class="container mx-auto px-4 py-4 flex flex-col md:flex-row items-center justify-between space-y-4 md:space-y-0">
         <a href="/" class="text-2xl font-bold text-brand-primary hover:text-brand-accent">
             {{ site_name }}
-        </a>
-        
-        <nav aria-label="Main Navigation">
+        </a>        
+        <nav aria-label="Main Navigation" class="space-x-4  md:flex">
             <ul class="flex space-x-6">
                 <li>
                     <a href="{% url 'post_list' %}" 
-                       class="text-text-secondary hover:text-brand-accent transition-colors">
-                        Blog
+                       class="text-text-primary hover:text-brand-accent transition-colors font-medium text-sm">
+                        {% trans 'All Posts' %}
                     </a>
                 </li>
                 <li>
                     <a href="{% url 'category_list' %}" 
-                       class="text-text-secondary hover:text-brand-accent transition-colors">
-                        Categories
+                       class="text-text-primary hover:text-brand-accent transition-colors font-medium text-sm">
+                        {% trans 'Categories ' %}
                     </a>
                 </li>
-                <li><a href="/about/" class="text-gray-600 hover:text-gray-900">About</a></li>
-
             </ul>
         </nav>
     </div>
 </header>
+

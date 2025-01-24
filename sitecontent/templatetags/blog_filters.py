@@ -10,6 +10,8 @@ register = template.Library()
 def reading_time(content):
     """
     Returns the estimated reading time for the given content.
+    
+       Usage: {{ post.content|reading_time }}
     """
     word_count = len(content.split())
     minutes = math.ceil(word_count / 200)  # Average reading speed
