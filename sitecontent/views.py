@@ -10,9 +10,17 @@ import json
 from datetime import datetime
 import logging
 from .settings import APP_SETTINGS, BLOG_SETTINGS
+from django.utils.decorators import method_decorator
+from django.views.decorators.cache import cache_page, cache_control
+from django.core.cache import cache
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)  # Explicitly set to INFO level if necessary
+
+class BaseMixin:
+    @method_decorator(cache_page(60 * 15))  # 15-minute cache
+    def dispatch(self, *args, **kwargs):
+        return super().dispatch(*args, **kwargs)
 
 class ViewCountMixin:
     """Mixin to handle view count incrementing for models"""
@@ -58,7 +66,7 @@ class SEOMetadataMixin:
 
 class BreadcrumbsMixin:
     def get_breadcrumbs(self):
-        return [{'name': _('Home'), 'url': '/'}]
+        return [{'name': str(_('Home')), 'url': '/'}]
     
     def get_schema_breadcrumbs(self):
         breadcrumbs = self.get_breadcrumbs()
@@ -72,7 +80,7 @@ class BreadcrumbsMixin:
             schema["itemListElement"].append({
                 "@type": "ListItem",
                 "position": i,
-                "name": item['name'],
+                "name": str(item['name']),  # Convert __proxy__ to string
                 "item": self.request.build_absolute_uri(item['url'])
             })
         return schema
@@ -237,16 +245,26 @@ class PostListView(SEOMetadataMixin, BreadcrumbsMixin, SchemaMixin, ListView):
         breadcrumbs.append({'name': str(_('Posts')), 'url': reverse('post_list')})
         return breadcrumbs
 
-class CategoryListView(SEOMetadataMixin, BreadcrumbsMixin, SchemaMixin, ListView):
+@method_decorator(cache_control(public=True, max_age=3600), name='dispatch')
+class CategoryListView(BaseMixin, SEOMetadataMixin, BreadcrumbsMixin, SchemaMixin, ListView):
     model = Category
     template_name = 'blog/category_list.html'
     context_object_name = 'categories'
     paginate_by = 3
     
     def get_queryset(self):
-        return Category.objects.annotate(
-            post_count=Count('posts', filter=models.Q(posts__status=1))
-        ).order_by('name')
+        cache_key = 'category_list_with_post_count'
+        cached_queryset = cache.get(cache_key)
+        
+        if not cached_queryset:
+            cached_queryset = list(
+                Category.objects.annotate(
+                    post_count=Count('posts', filter=Q(posts__status=1))
+                ).order_by('name')
+            )
+            cache.set(cache_key, cached_queryset, 3600)  # 1-hour cache
+        
+        return cached_queryset
 
     def get_schema(self):
         schema = {
@@ -254,15 +272,20 @@ class CategoryListView(SEOMetadataMixin, BreadcrumbsMixin, SchemaMixin, ListView
             "@type": "CollectionPage",
             "name": BLOG_SETTINGS['CATEGORY']['TITLE'],
             "description": BLOG_SETTINGS['CATEGORY']['DESCRIPTION'],
-            "hasPart": [
-                {
-                    "@type": "ItemList",
-                    "name": category.name,
-                    "url": self.request.build_absolute_uri(category.get_absolute_url()),
-                    "numberOfItems": category.posts.filter(status=1).count()
-                }
-                for category in self.get_queryset()
-            ]
+            "mainEntity": {
+                "@type": "ItemList",
+                "numberOfItems": len(self.get_queryset()),
+                "itemListElement": [
+                    {
+                        "@type": "ListItem",
+                        "position": idx + 1,
+                        "url": self.request.build_absolute_uri(category.get_absolute_url()),
+                        "name": category.name,
+                        "description": category.meta_description,
+                    }
+                    for idx, category in enumerate(self.get_queryset())
+                ]
+            }
         }
         return schema
 
@@ -280,7 +303,7 @@ class CategoryListView(SEOMetadataMixin, BreadcrumbsMixin, SchemaMixin, ListView
 
     def get_breadcrumbs(self):
         breadcrumbs = super().get_breadcrumbs()
-        breadcrumbs.append({'name': str(_('Categories')), 'url': reverse('category_list')})
+        breadcrumbs.append({'name': _('Categories'), 'url': reverse('category_list')})
         return breadcrumbs
 
 class CategoryView(ViewCountMixin, SEOMetadataMixin, BreadcrumbsMixin, SchemaMixin, ListView):
@@ -299,11 +322,14 @@ class CategoryView(ViewCountMixin, SEOMetadataMixin, BreadcrumbsMixin, SchemaMix
             'tags'
         ).order_by('-created_at')
 
+    def get_object(self):
+        return self.category
+
     def get_schema(self):
         schema = {
             **self.get_base_schema(),
             "@type": "CollectionPage",
-            "name": f"Posts in {self.category.name}",
+            "name": str(_('Posts in %(category_name)s') % {'category_name': self.category.name}),  # Convert __proxy__ to string
             "description": self.category.meta_description,
             "mainEntity": {
                 "@type": "ItemList",
@@ -327,7 +353,7 @@ class CategoryView(ViewCountMixin, SEOMetadataMixin, BreadcrumbsMixin, SchemaMix
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['category'] = self.category  # Add category to context
+        context['category'] = self.category 
         context['schema'] = json.dumps(self.get_schema())
         context['schema_breadcrumbs'] = json.dumps(self.get_schema_breadcrumbs())
         return context
@@ -356,11 +382,14 @@ class TagView(ViewCountMixin, SEOMetadataMixin, BreadcrumbsMixin, SchemaMixin, L
             'tags'
         ).order_by('-created_at')
 
+    def get_object(self):
+        return self.tag
+
     def get_schema(self):
         schema = {
             **self.get_base_schema(),
             "@type": "CollectionPage",
-            "name": f"Posts tagged with {self.tag.name}",
+            "name": str(_('Posts tagged with %(tag_name)s') % {'tag_name': self.tag.name}),  # Convert __proxy__ to string
             "description": self.tag.meta_description,
             "mainEntity": {
                 "@type": "ItemList",
@@ -384,6 +413,7 @@ class TagView(ViewCountMixin, SEOMetadataMixin, BreadcrumbsMixin, SchemaMixin, L
     
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        context['tag'] = self.tag 
         context['schema'] = json.dumps(self.get_schema())
         context['schema_breadcrumbs'] = json.dumps(self.get_schema_breadcrumbs())
         return context    
@@ -392,7 +422,7 @@ class TagView(ViewCountMixin, SEOMetadataMixin, BreadcrumbsMixin, SchemaMixin, L
     def get_breadcrumbs(self):
         breadcrumbs = super().get_breadcrumbs()
         breadcrumbs.extend([
-            {'name': _('Tags'), 'url': reverse('tag_list')},
+            {'name': _('Tag'), 'url': '#'},
             {'name': self.tag.name, 'url': self.tag.get_absolute_url()}
         ])                
         return breadcrumbs
@@ -468,12 +498,12 @@ class PostDetailView(ViewCountMixin, SEOMetadataMixin, SchemaMixin, BreadcrumbsM
         post = self.get_object()
         breadcrumbs = super().get_breadcrumbs()
         breadcrumbs.extend([
-            {'name': _('Posts'), 'url': reverse('post_list')},
+            {'name': str(_('Posts')), 'url': reverse('post_list')},
             {'name': post.title, 'url': post.get_absolute_url()}
         ])
         return breadcrumbs   
     
-class PageView(ViewCountMixin, SEOMetadataMixin,BreadcrumbsMixin, SchemaMixin, DetailView):
+class PageView(ViewCountMixin, SEOMetadataMixin, BreadcrumbsMixin, SchemaMixin, DetailView):
     model = Page 
     template_name = 'site/page.html'
     context_object_name = 'page'
