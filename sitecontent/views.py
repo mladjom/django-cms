@@ -116,6 +116,48 @@ class SchemaMixin:
             "datePublished": datetime.now().isoformat()
         } 
  
+class HomeView(SEOMetadataMixin, BreadcrumbsMixin, SchemaMixin, ListView):
+    model = Post
+    template_name = 'site/home.html' 
+    context_object_name = 'posts'
+
+    def get_schema(self):
+        schema = {
+            **self.get_base_schema(),
+            "@type": "Blog",
+            "name": "Blog Posts",
+            "description": "Latest blog posts",
+            "blogPost": [
+                {
+                    "@type": "BlogPosting",
+                    "headline": post.title,
+                    "url": self.request.build_absolute_uri(post.get_absolute_url()),
+                    "datePublished": post.created_at.isoformat(),
+                    "dateModified": post.updated_at.isoformat(),
+                    "author": {
+                        "@type": "Person",
+                        "name": post.author.get_full_name() or post.author.username
+                    }
+                }
+                for post in self.get_queryset()[:5]  # Use get_queryset instead of get_context_data
+            ]
+        }
+        return schema
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['featured_posts'] = Post.objects.filter(
+            status=1, is_featured=True
+        ).order_by('-created_at')[:3]
+        context['schema'] = json.dumps(self.get_schema())
+        return context
+
+    def get_meta_title(self):
+        return str(_('Home Title'))
+    
+    def get_meta_description(self):
+        return str(_('Home Description'))
+    
 class PostListView(SEOMetadataMixin, BreadcrumbsMixin, SchemaMixin, ListView):
     model = Post
     template_name = 'blog/post_list.html'

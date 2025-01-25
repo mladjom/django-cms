@@ -91,7 +91,7 @@ class PostAdmin(admin.ModelAdmin):
 
 @admin.register(Page)
 class PageAdmin(admin.ModelAdmin):
-    list_display = ('title', 'view_count')
+    list_display = ('title', 'view_count', 'status')
     search_fields = ('title', 'content', 'meta_title')
     prepopulated_fields = {'slug': ('title',)}
     readonly_fields = ('view_count',)
@@ -106,7 +106,7 @@ class PageAdmin(admin.ModelAdmin):
             'classes': ('collapse',)
         }),
         (_('Statistics'), {
-            'fields': ('view_count',),
+            'fields': ('view_count', 'status'), 
             'classes': ('collapse',)
         }),
     )
