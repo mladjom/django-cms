@@ -4,6 +4,8 @@ from .views import CategoryView, TagView, PostDetailView, PageView, PostListView
 urlpatterns = [
     # Post and Category List URLs
     path('posts/', PostListView.as_view(), name='post_list'),  # List all posts
+    path('posts/page-<int:page>/', PostListView.as_view(), name='post-list'),
+
     path('category/', CategoryListView.as_view(), name='category_list'),
     
     # Category URLs

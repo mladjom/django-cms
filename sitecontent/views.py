@@ -30,9 +30,8 @@ class ViewCountMixin:
                 try:
                     self._object.view_count = F('view_count') + 1
                     self._object.save(update_fields=['view_count'])
-                    print("Logger should trigger here")
-
-                    logger.info(f"View count incremented for {self._object.__class__.__name__} with ID: {self._object.pk}")
+                    # print("Logger should trigger here")
+                    # logger.info(f"View count incremented for {self._object.__class__.__name__} with ID: {self._object.pk}")
                 except Exception as e:
                     logger.error(f"Failed to increment view count: {e}")
                     raise
@@ -121,7 +120,7 @@ class PostListView(SEOMetadataMixin, BreadcrumbsMixin, SchemaMixin, ListView):
     model = Post
     template_name = 'blog/post_list.html'
     context_object_name = 'posts'
-    paginate_by = 6
+    paginate_by = 3
     
     def get_queryset(self):
         return Post.objects.filter(

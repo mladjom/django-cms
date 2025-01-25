@@ -8,14 +8,26 @@
             <ul class="flex space-x-6">
                 <li>
                     <a href="{% url 'post_list' %}" 
-                       class="text-text-primary hover:text-brand-accent transition-colors font-medium text-sm">
+                       class="text-text-primary hover:text-brand-accent transition-colors font-bold text-sm">
                         {% trans 'All Posts' %}
                     </a>
                 </li>
                 <li>
                     <a href="{% url 'category_list' %}" 
-                       class="text-text-primary hover:text-brand-accent transition-colors font-medium text-sm">
-                        {% trans 'Categories ' %}
+                       class="text-text-primary hover:text-brand-accent transition-colors font-bold text-sm">
+                        {% trans 'Categories' %}
+                    </a>
+                </li>
+                <li>
+                    <a href="/about/" 
+                       class="text-text-primary hover:text-brand-accent transition-colors font-bold text-sm">
+                        {% trans 'About' %}
+                    </a>
+                </li>
+                <li>
+                    <a href="/contact/" 
+                       class="text-text-primary hover:text-brand-accent transition-colors font-bold text-sm">
+                        {% trans 'Contact' %}
                     </a>
                 </li>
             </ul>

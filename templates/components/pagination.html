@@ -1,9 +1,10 @@
+{% load i18n %}
 {% if is_paginated %}
 <nav aria-label="Pagination" class="flex justify-center space-x-2 my-8">
     {% if page_obj.has_previous %}
-    <a href="?page={{ page_obj.previous_page_number }}" 
+    <a href="c={{ page_obj.previous_page_number }}" 
        class="px-4 py-2 border rounded hover:bg-gray-100 aria-current:bg-brand-accent aria-current:text-white">
-        Previous
+        {% trans 'Previous' %}
     </a>
     {% endif %}
 
@@ -14,7 +15,7 @@
             {{ page }}
         </span>
         {% else %}
-        <a href="?page={{ page }}" 
+        <a href="{% url 'post-list' page=page %}" 
            class="px-4 py-2 border rounded hover:bg-gray-100">
             {{ page }}
         </a>
@@ -22,9 +23,9 @@
     {% endfor %}
 
     {% if page_obj.has_next %}
-    <a href="?page={{ page_obj.next_page_number }}" 
+    <a href="{% url 'post-list' page=page_obj.next_page_number %}={{ page_obj.next_page_number }}" 
        class="px-4 py-2 border rounded hover:bg-gray-100">
-        Next
+       {% trans 'Next' %}
     </a>
     {% endif %}
 </nav>
