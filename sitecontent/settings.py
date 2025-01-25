@@ -3,7 +3,18 @@ APP_SETTINGS = {
     'DESCRIPTION': 'Site Description',
     'TAGLINE': 'Insights and Stories',
     'URL': 'https://www.example.com',
+    'LOGO': '/static/images/logo.png',
     'EMAIL': '.'.join(['info', 'example', 'com']),
+}
+BLOG_SETTINGS = {
+    'TITLE': 'Blog',
+    'DESCRIPTION': 'Blog Description',
+    'TAGLINE': 'Insights and Stories',
+    'CATEGORY': {
+        'TITLE': 'Categories',
+        'DESCRIPTION': 'Blog Categories',
+        'TAGLINE': 'Browse by Category',
+    },
 }
 # Image Processing Settings
 IMAGE_SETTINGS = {

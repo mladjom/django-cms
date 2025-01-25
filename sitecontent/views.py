@@ -1,7 +1,7 @@
-from django.views.generic import ListView, DetailView
+from django.views.generic import ListView, DetailView, TemplateView
 from django.urls import reverse
 from django.db import models
-from django.db.models import F, Count
+from django.db.models import F, Count, Q
 from django.db.transaction import atomic
 from django.shortcuts import get_object_or_404
 from .models import Post, Category, Tag, Page
@@ -9,16 +9,10 @@ from django.utils.translation import gettext_lazy as _
 import json
 from datetime import datetime
 import logging
+from .settings import APP_SETTINGS, BLOG_SETTINGS
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)  # Explicitly set to INFO level if necessary
-
-if not logger.handlers:
-    handler = logging.StreamHandler()
-    handler.setLevel(logging.INFO)
-    formatter = logging.Formatter('%(levelname)s %(message)s')
-    handler.setFormatter(formatter)
-    logger.addHandler(handler)
 
 class ViewCountMixin:
     """Mixin to handle view count incrementing for models"""
@@ -30,8 +24,6 @@ class ViewCountMixin:
                 try:
                     self._object.view_count = F('view_count') + 1
                     self._object.save(update_fields=['view_count'])
-                    # print("Logger should trigger here")
-                    # logger.info(f"View count incremented for {self._object.__class__.__name__} with ID: {self._object.pk}")
                 except Exception as e:
                     logger.error(f"Failed to increment view count: {e}")
                     raise
@@ -66,7 +58,7 @@ class SEOMetadataMixin:
 
 class BreadcrumbsMixin:
     def get_breadcrumbs(self):
-        return [{'name': 'Home', 'url': '/'}]
+        return [{'name': _('Home'), 'url': '/'}]
     
     def get_schema_breadcrumbs(self):
         breadcrumbs = self.get_breadcrumbs()
@@ -106,57 +98,80 @@ class SchemaMixin:
             },
             "publisher": {
                 "@type": "Organization",
-                "name": "Your Site Name",  # Replace with your actual site name
+                "name": APP_SETTINGS['NAME'],  
                 "logo": {
                     "@type": "ImageObject",
-                    "url": self.request.build_absolute_uri("/path/to/logo.png")  # Replace with your logo path
+                    "url": self.request.build_absolute_uri(APP_SETTINGS['LOGO'])
                 }
             },
             "url": self.request.build_absolute_uri(),
             "datePublished": datetime.now().isoformat()
         } 
  
-class HomeView(SEOMetadataMixin, BreadcrumbsMixin, SchemaMixin, ListView):
+class HomeView(SEOMetadataMixin, SchemaMixin, TemplateView):
     model = Post
     template_name = 'site/home.html' 
     context_object_name = 'posts'
 
+    def get_featured_posts(self):
+        return Post.objects.filter(
+            status=1, is_featured=True
+        ).select_related('author', 'category').prefetch_related('tags')[:3]
+
     def get_schema(self):
+
         schema = {
             **self.get_base_schema(),
-            "@type": "Blog",
-            "name": "Blog Posts",
-            "description": "Latest blog posts",
-            "blogPost": [
-                {
-                    "@type": "BlogPosting",
-                    "headline": post.title,
-                    "url": self.request.build_absolute_uri(post.get_absolute_url()),
-                    "datePublished": post.created_at.isoformat(),
-                    "dateModified": post.updated_at.isoformat(),
-                    "author": {
-                        "@type": "Person",
-                        "name": post.author.get_full_name() or post.author.username
-                    }
-                }
-                for post in self.get_queryset()[:5]  # Use get_queryset instead of get_context_data
-            ]
+            "@type": "WebPage",
+            "name": f"{APP_SETTINGS['NAME']} - {APP_SETTINGS['TAGLINE']}",
+            "description": APP_SETTINGS['DESCRIPTION'],
+            "headline": APP_SETTINGS['TAGLINE'],
+            "mainEntity": {
+                 "@type": "ItemList",
+                "itemListElement": [
+                    {
+                        "@type": "BlogPosting",
+                        "headline": post.title,
+                        "description": post.excerpt or '',
+                        "url": self.request.build_absolute_uri(post.get_absolute_url())
+                    } for post in self.get_featured_posts()[:3]
+                ]      
+            }
         }
         return schema
-
+    
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['featured_posts'] = Post.objects.filter(
-            status=1, is_featured=True
-        ).order_by('-created_at')[:3]
-        context['schema'] = json.dumps(self.get_schema())
+        
+        # Optimize queries with select_related and prefetch_related
+        featured_posts = self.get_featured_posts()
+        latest_posts = Post.objects.filter(status=1).select_related(
+            'author', 'category'
+        ).prefetch_related('tags').order_by('-created_at')[:4]
+        
+        popular_posts = Post.objects.filter(status=1).select_related(
+            'author', 'category'
+        ).prefetch_related('tags').order_by('-view_count')[:5]
+        
+        categories = Category.objects.annotate(
+            post_count=Count('posts', filter=Q(posts__status=1))
+        ).order_by('-post_count')[:6]
+        
+        context.update({
+            'featured_posts': featured_posts,
+            'latest_posts': latest_posts,
+            'popular_posts': popular_posts,
+            'categories': categories,
+            'schema': json.dumps(self.get_schema())
+        })
+        
         return context
 
     def get_meta_title(self):
-        return str(_('Home Title'))
+        return f"{APP_SETTINGS['NAME']} - {APP_SETTINGS['TAGLINE']}"
     
     def get_meta_description(self):
-        return str(_('Home Description'))
+        return str(APP_SETTINGS['DESCRIPTION'])
     
 class PostListView(SEOMetadataMixin, BreadcrumbsMixin, SchemaMixin, ListView):
     model = Post
@@ -177,8 +192,8 @@ class PostListView(SEOMetadataMixin, BreadcrumbsMixin, SchemaMixin, ListView):
         schema = {
             **self.get_base_schema(),
             "@type": "Blog",
-            "name": "Blog Posts",
-            "description": "Latest blog posts",
+            "name": BLOG_SETTINGS['TITLE'],
+            "description": BLOG_SETTINGS['DESCRIPTION'],
             "blogPost": [
                 {
                     "@type": "BlogPosting",
@@ -198,18 +213,24 @@ class PostListView(SEOMetadataMixin, BreadcrumbsMixin, SchemaMixin, ListView):
         
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['featured_posts'] = Post.objects.filter(
+        
+        featured_posts = Post.objects.filter(
             status=1, is_featured=True
-        ).order_by('-created_at')[:3]
-        context['schema'] = json.dumps(self.get_schema())
-        context['schema_breadcrumbs'] = json.dumps(self.get_schema_breadcrumbs())
+        ).select_related('author', 'category').prefetch_related('tags')[:3]
+        
+        context.update({
+            'featured_posts': featured_posts,
+            'schema': json.dumps(self.get_schema()),
+            'schema_breadcrumbs': json.dumps(self.get_schema_breadcrumbs())
+        })
+        
         return context
 
     def get_meta_title(self):
-        return str(_('Blog Posts'))
+        return f"{BLOG_SETTINGS['TITLE']} - {APP_SETTINGS['NAME']}"
     
     def get_meta_description(self):
-        return str(_('Latest blog posts and articles'))
+        return str(BLOG_SETTINGS['DESCRIPTION'])
 
     def get_breadcrumbs(self):
         breadcrumbs = super().get_breadcrumbs()
@@ -231,8 +252,8 @@ class CategoryListView(SEOMetadataMixin, BreadcrumbsMixin, SchemaMixin, ListView
         schema = {
             **self.get_base_schema(),
             "@type": "CollectionPage",
-            "name": "Blog Categories",
-            "description": "All blog categories",
+            "name": BLOG_SETTINGS['CATEGORY']['TITLE'],
+            "description": BLOG_SETTINGS['CATEGORY']['DESCRIPTION'],
             "hasPart": [
                 {
                     "@type": "ItemList",
@@ -252,10 +273,10 @@ class CategoryListView(SEOMetadataMixin, BreadcrumbsMixin, SchemaMixin, ListView
         return context
 
     def get_meta_title(self):
-        return str(_('Categories'))
+        return str(BLOG_SETTINGS['CATEGORY']['TITLE'])
     
     def get_meta_description(self):
-        return str(_('All blog categories'))
+        return str(BLOG_SETTINGS['CATEGORY']['DESCRIPTION'])
 
     def get_breadcrumbs(self):
         breadcrumbs = super().get_breadcrumbs()
@@ -314,7 +335,7 @@ class CategoryView(ViewCountMixin, SEOMetadataMixin, BreadcrumbsMixin, SchemaMix
     def get_breadcrumbs(self):
         breadcrumbs = super().get_breadcrumbs()
         breadcrumbs.extend([
-            {'name': 'Categories', 'url': reverse('category_list')},
+            {'name': _('Categories'), 'url': reverse('category_list')},
             {'name': self.category.name, 'url': self.category.get_absolute_url()}
         ])
         return breadcrumbs
@@ -370,7 +391,10 @@ class TagView(ViewCountMixin, SEOMetadataMixin, BreadcrumbsMixin, SchemaMixin, L
     
     def get_breadcrumbs(self):
         breadcrumbs = super().get_breadcrumbs()
-        breadcrumbs.append({'name': f'Tag: {self.tag.name}', 'url': self.tag.get_absolute_url()})
+        breadcrumbs.extend([
+            {'name': _('Tags'), 'url': reverse('tag_list')},
+            {'name': self.tag.name, 'url': self.tag.get_absolute_url()}
+        ])                
         return breadcrumbs
 
 class PostDetailView(ViewCountMixin, SEOMetadataMixin, SchemaMixin, BreadcrumbsMixin, DetailView):
@@ -411,15 +435,7 @@ class PostDetailView(ViewCountMixin, SEOMetadataMixin, SchemaMixin, BreadcrumbsM
         ).order_by('created_at').first()
             
         return context        
-    def get_breadcrumbs(self):
-        post = self.get_object()
-        breadcrumbs = super().get_breadcrumbs()
-        breadcrumbs.extend([
-            {'name': 'Posts', 'url': reverse('post_list')},
-            {'name': post.title, 'url': post.get_absolute_url()}
-        ])
-        return breadcrumbs        
-
+     
     def get_schema(self):
         post = self.get_object()
         schema = {
@@ -448,6 +464,15 @@ class PostDetailView(ViewCountMixin, SEOMetadataMixin, SchemaMixin, BreadcrumbsM
             
         return schema
 
+    def get_breadcrumbs(self):
+        post = self.get_object()
+        breadcrumbs = super().get_breadcrumbs()
+        breadcrumbs.extend([
+            {'name': _('Posts'), 'url': reverse('post_list')},
+            {'name': post.title, 'url': post.get_absolute_url()}
+        ])
+        return breadcrumbs   
+    
 class PageView(ViewCountMixin, SEOMetadataMixin,BreadcrumbsMixin, SchemaMixin, DetailView):
     model = Page 
     template_name = 'site/page.html'
