@@ -186,6 +186,7 @@ class PostListView(SEOMetadataMixin, BreadcrumbsMixin, SchemaMixin, ListView):
     template_name = 'blog/post_list.html'
     context_object_name = 'posts'
     paginate_by = 3
+    page_kwarg = 'page'
     
     def get_queryset(self):
         return Post.objects.filter(
@@ -222,12 +223,14 @@ class PostListView(SEOMetadataMixin, BreadcrumbsMixin, SchemaMixin, ListView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         
+        paginate_base_url = 'post_list'
         featured_posts = Post.objects.filter(
             status=1, is_featured=True
         ).select_related('author', 'category').prefetch_related('tags')[:3]
         
         context.update({
             'featured_posts': featured_posts,
+            'paginate_base_url': paginate_base_url,
             'schema': json.dumps(self.get_schema()),
             'schema_breadcrumbs': json.dumps(self.get_schema_breadcrumbs())
         })
@@ -245,12 +248,13 @@ class PostListView(SEOMetadataMixin, BreadcrumbsMixin, SchemaMixin, ListView):
         breadcrumbs.append({'name': str(_('Posts')), 'url': reverse('post_list')})
         return breadcrumbs
 
-@method_decorator(cache_control(public=True, max_age=3600), name='dispatch')
+#@method_decorator(cache_control(public=True, max_age=3600), name='dispatch')
 class CategoryListView(BaseMixin, SEOMetadataMixin, BreadcrumbsMixin, SchemaMixin, ListView):
     model = Category
     template_name = 'blog/category_list.html'
     context_object_name = 'categories'
     paginate_by = 3
+    page_kwarg = 'page'
     
     def get_queryset(self):
         cache_key = 'category_list_with_post_count'
@@ -291,6 +295,7 @@ class CategoryListView(BaseMixin, SEOMetadataMixin, BreadcrumbsMixin, SchemaMixi
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        context['pagination_base_url'] = 'category'
         context['schema'] = json.dumps(self.get_schema())
         context['schema_breadcrumbs'] = json.dumps(self.get_schema_breadcrumbs())
         return context
@@ -307,9 +312,12 @@ class CategoryListView(BaseMixin, SEOMetadataMixin, BreadcrumbsMixin, SchemaMixi
         return breadcrumbs
 
 class CategoryView(ViewCountMixin, SEOMetadataMixin, BreadcrumbsMixin, SchemaMixin, ListView):
+    model = Post
     template_name = 'blog/category_posts.html'
     context_object_name = 'posts'
-    #paginate_by = 10
+    paginate_by = 1 
+    page_kwarg = 'page'
+
     
     def get_queryset(self):
         self.category = get_object_or_404(Category, slug=self.kwargs['slug'])
@@ -321,6 +329,7 @@ class CategoryView(ViewCountMixin, SEOMetadataMixin, BreadcrumbsMixin, SchemaMix
         ).prefetch_related(
             'tags'
         ).order_by('-created_at')
+
 
     def get_object(self):
         return self.category
@@ -354,6 +363,7 @@ class CategoryView(ViewCountMixin, SEOMetadataMixin, BreadcrumbsMixin, SchemaMix
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['category'] = self.category 
+        context['pagination_base_url'] = f"category/{self.category.slug}"  # Base URL for pagination
         context['schema'] = json.dumps(self.get_schema())
         context['schema_breadcrumbs'] = json.dumps(self.get_schema_breadcrumbs())
         return context
@@ -498,7 +508,7 @@ class PostDetailView(ViewCountMixin, SEOMetadataMixin, SchemaMixin, BreadcrumbsM
         post = self.get_object()
         breadcrumbs = super().get_breadcrumbs()
         breadcrumbs.extend([
-            {'name': str(_('Posts')), 'url': reverse('post_list')},
+            {'name': _('Posts'), 'url': reverse('post_list')},
             {'name': post.title, 'url': post.get_absolute_url()}
         ])
         return breadcrumbs   

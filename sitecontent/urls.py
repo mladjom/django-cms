@@ -13,7 +13,9 @@ urlpatterns = [
     path('post/<slug:slug>/', PostDetailView.as_view(), name='post_detail'),
     # Category URLs
     path('category/', CategoryListView.as_view(), name='category_list'),
+    path('category/page-<int:page>/', CategoryListView.as_view(), name='category-list'),
     path('category/<slug:slug>/', CategoryView.as_view(), name='category_posts'),
+    path('category/<slug:slug>/page-<int:page>/', CategoryView.as_view(), name='category_posts'),
     # Tag URLs
     path('tag/<slug:slug>/', TagView.as_view(), name='tagged'),
     # Page URLs
