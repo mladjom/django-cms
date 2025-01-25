@@ -312,7 +312,7 @@ class CategoryListView(BaseMixin, SEOMetadataMixin, BreadcrumbsMixin, SchemaMixi
         return breadcrumbs
 
 class CategoryView(ViewCountMixin, SEOMetadataMixin, BreadcrumbsMixin, SchemaMixin, ListView):
-    model = Post
+    model = Category
     template_name = 'blog/category_posts.html'
     context_object_name = 'posts'
     paginate_by = 1 
@@ -367,6 +367,14 @@ class CategoryView(ViewCountMixin, SEOMetadataMixin, BreadcrumbsMixin, SchemaMix
         context['schema'] = json.dumps(self.get_schema())
         context['schema_breadcrumbs'] = json.dumps(self.get_schema_breadcrumbs())
         return context
+
+    def get_meta_title(self):
+        """Override to provide meta title based on the category"""
+        return getattr(self.category, 'meta_title', None) or self.category.name or 'Category'
+
+    def get_meta_description(self):
+        """Override to provide meta description based on the category"""
+        return getattr(self.category, 'meta_description', None) or f"Posts in {self.category.description}" or ''
         
     def get_breadcrumbs(self):
         breadcrumbs = super().get_breadcrumbs()
@@ -379,7 +387,8 @@ class CategoryView(ViewCountMixin, SEOMetadataMixin, BreadcrumbsMixin, SchemaMix
 class TagView(ViewCountMixin, SEOMetadataMixin, BreadcrumbsMixin, SchemaMixin, ListView):
     template_name = 'blog/tag_posts.html'
     context_object_name = 'posts'
-    paginate_by = 10
+    paginate_by = 1 
+    page_kwarg = 'page'
     
     def get_queryset(self):
         self.tag = get_object_or_404(Tag, slug=self.kwargs['slug'])
@@ -424,9 +433,18 @@ class TagView(ViewCountMixin, SEOMetadataMixin, BreadcrumbsMixin, SchemaMixin, L
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['tag'] = self.tag 
+        context['pagination_base_url'] = f"tag/{self.tag.slug}"  # Base URL for pagination
         context['schema'] = json.dumps(self.get_schema())
         context['schema_breadcrumbs'] = json.dumps(self.get_schema_breadcrumbs())
         return context    
+
+    def get_meta_title(self):
+        """Override to provide meta title based on the tag"""
+        return getattr(self.tag, 'meta_title', None) or self.tag.name or 'Tag'
+
+    def get_meta_description(self):
+        """Override to provide meta description based on the tag"""
+        return getattr(self.tag, 'meta_description', None) or f"Posts in {self.tag.description}" or ''
 
     
     def get_breadcrumbs(self):

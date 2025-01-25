@@ -18,6 +18,7 @@ urlpatterns = [
     path('category/<slug:slug>/page-<int:page>/', CategoryView.as_view(), name='category_posts'),
     # Tag URLs
     path('tag/<slug:slug>/', TagView.as_view(), name='tagged'),
+    path('tag/<slug:slug>/page-<int:page>/', TagView.as_view(), name='tagged'),
     # Page URLs
     path('<slug:slug>/', PageView.as_view(), name='page'),
     # Sitemap URL
