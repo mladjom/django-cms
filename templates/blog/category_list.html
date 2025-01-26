@@ -1,15 +1,15 @@
 {% extends "base.html" %}
 {% load i18n %}
 {% block content %}
-<div class="max-w-4xl mx-auto">
+<div class="max-w-5xl mx-auto">
     {% include "components/breadcrumbs.html" %}
     
-    <header class="mb-8 text-center">
-        <h1 class="text-3xl md:text-4xl font-bold text-brand-primary">
-            Blog Categories
+    <header class="mb-12 text-center">
+        <h1 class="text-3xl  font-bold text-brand-primary mb-4">
+            {{ category_title }}
         </h1>
-        <p class="text-text-secondary mt-4">
-            Explore our blog categories
+        <p class="text-text-secondary">
+            {{ category_description }}
         </p>
     </header>
     

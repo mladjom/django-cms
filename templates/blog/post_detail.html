@@ -6,42 +6,35 @@
 <article class="max-w-3xl mx-auto">
     {% include "components/breadcrumbs.html" %}
     
-    <header class="mb-8">
+    <header class="mb-12">
         <h1 class="text-3xl md:text-4xl font-bold text-brand-primary mb-4">
             {{ post.title }}
         </h1>
         
-        <div class="flex items-center text-text-secondary">
-            <img src="{{ post.author.profile_picture.url }}" 
-                 alt="{{ post.author.get_full_name }}"
-                 class="w-10 h-10 rounded-full mr-4">
-            
-            <div>
-                <span class="font-medium">{{ post.author.get_full_name }}</span>
-                <span class="font-medium">{{ post.view_count }}</span>
-                <span class="font-medium">{{ post.view_count }}</span>
+        <div class="flex items-center text-text-secondary">            
+               <div>
+                <span class="font-medium"><time datetime="{{ post.created_at|date:'Y-m-d' }}">
+                    {{ post.created_at|relative_date}}
+                </time></span>               
                 <span class="mx-2">•</span>
-                <time datetime="{{ post.created_at|date:'Y-m-d' }}">
-                    {{ post.created_at|date:'F d, Y' }}
-                </time>
+                <span class="font-medium">{{ post.view_count }} {% trans 'views'%}</span>
             </div>
         </div>
     </header>
     
     {% if post.featured_image %}
-    <figure class="mb-8">
-        <img src="{{ post.featured_image.url }}" 
-             alt="{{ post.title }}"
-             class="w-full h-auto rounded-lg object-cover">
-    </figure>
+        <figure class="mb-8">
+            <img src="{{ post.featured_image.url }}" 
+                alt="{{ post.title }}"
+                class="w-full h-auto rounded-lg object-cover">
+        </figure>
     {% else %}
-    <figure class="mb-8">
-        <img src="https://placehold.co/768x432" 
-             alt="{{ post.title }}"
-             class="w-full h-auto rounded-lg object-cover">    </figure>
-
-    {% endif %}
-    
+        <figure class="mb-12">
+            <img src="https://placehold.co/768x432" 
+                alt="{{ post.title }}"
+                class="w-full h-auto rounded-lg object-cover">    
+        </figure>
+    {% endif %}  
     <div class="prose max-w-none">
         {{ post.content|safe }}
     </div>
@@ -49,7 +42,9 @@
     <footer class="mt-8 pt-8 border-t">
         <div class="flex justify-between items-center">
             <div>
-                <h3 class="text-lg font-bold mb-2">Categories</h3>
+                <h3 class="text-lg font-bold mb-2">        
+                    {% trans 'Categories' %}
+                </h3>
                 <a href="{{ post.category.get_absolute_url }}" 
                    class="px-3 py-1 bg-gray-100 rounded-full hover:bg-brand-accent hover:text-white">
                     {{ post.category.name }}
@@ -57,7 +52,9 @@
             </div>
             
             <div>
-                <h3 class="text-lg font-bold mb-2">Tags</h3>
+                <h3 class="text-lg font-bold mb-2">
+                    {% trans 'Tags' %}
+                </h3>
                 <div class="flex space-x-2">
                     {% for tag in post.tags.all %}
                     <a href="{{ tag.get_absolute_url }}" 

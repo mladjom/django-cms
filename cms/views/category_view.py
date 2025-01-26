@@ -78,7 +78,7 @@ class CategoryView(ViewCountMixin, SEOMetadataMixin, BreadcrumbsMixin, SchemaMix
     model = Category
     template_name = 'blog/category_posts.html'
     context_object_name = 'posts'
-    paginate_by = 1 
+    paginate_by = 12
     page_kwarg = 'page'
 
     
