@@ -27,7 +27,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django.contrib.sitemaps',
-    'sitecontent.apps.SitecontentConfig',
+    'cms.apps.CmsConfig',
 ]
 
 MIDDLEWARE = [
@@ -54,7 +54,7 @@ TEMPLATES = [
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
                 'django.template.context_processors.i18n',
-                'sitecontent.context_processors.app_settings',
+                'cms.context_processors.app_settings',
            ],
         },
     },

@@ -1,7 +1,7 @@
 from django.core.management.base import BaseCommand
 from django.utils.text import slugify
 from django.contrib.auth.models import User
-from sitecontent.models import Category, Tag, Post, Page
+from cms.models import Category, Tag, Post, Page
 from faker import Faker
 
 class Command(BaseCommand):

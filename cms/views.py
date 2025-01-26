@@ -253,7 +253,7 @@ class CategoryListView(BaseMixin, SEOMetadataMixin, BreadcrumbsMixin, SchemaMixi
     model = Category
     template_name = 'blog/category_list.html'
     context_object_name = 'categories'
-    paginate_by = 3
+    paginate_by = 12
     page_kwarg = 'page'
     
     def get_queryset(self):
