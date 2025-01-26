@@ -1,19 +1,20 @@
-APP_SETTINGS = {
-    'NAME': 'Site Name',
-    'DESCRIPTION': 'Site Description',
-    'TAGLINE': 'Insights and Stories',
-    'URL': 'https://www.example.com',
-    'LOGO': '/static/images/logo.png',
-    'EMAIL': '.'.join(['info', 'example', 'com']),
+SITE_SETTINGS = {
+    'NAME': 'Your Brand Name',  # Replace with your actual brand name
+    'DESCRIPTION': 'A platform for engaging content and valuable insights.',
+    'TAGLINE': 'Empowering you with knowledge and inspiration.',  # Clear value proposition
+    'URL': 'https://www.your-website.com',  # Replace with your actual domain
+    'LOGO': '/static/images/logo.png',  # Update path if your logo is elsewhere
+    'EMAIL': 'info@your-website.com',  # Replace with your actual email address
 }
+
 BLOG_SETTINGS = {
-    'TITLE': 'Blog',
-    'DESCRIPTION': 'Blog Description',
-    'TAGLINE': 'Insights and Stories',
+    'TITLE': 'Your Blog Name',  # Replace with your blog's specific name
+    'DESCRIPTION': 'Dive deeper into industry trends, explore practical tips, and discover inspiring stories.',
+    'TAGLINE': 'Insights to elevate your knowledge and fuel your success.',  # Focus on reader benefits
     'CATEGORY': {
-        'TITLE': 'Categories',
-        'DESCRIPTION': 'Blog Categories',
-        'TAGLINE': 'Browse by Category',
+        'TITLE': 'Explore by Category',
+        'DESCRIPTION': 'Discover content tailored to your interests.',
+        'TAGLINE': 'Find what resonates with you.',  # Highlight category browsing value
     },
 }
 # Image Processing Settings
