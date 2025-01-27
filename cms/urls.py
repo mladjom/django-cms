@@ -1,6 +1,9 @@
 from django.urls import path
 from django.contrib.sitemaps.views import sitemap
-from .views import HomeView, CategoryView, TagView, PostDetailView, PageView, PostListView, CategoryListView, ContactView
+from cms.views.post import PostListView, PostDetailView
+from cms.views.category import CategoryView, CategoryListView
+from cms.views.tag import TagView
+from cms.views.page import HomeView, PageView, ContactView
 from .sitemaps import sitemaps
 
 urlpatterns = [
