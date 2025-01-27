@@ -69,7 +69,9 @@ class HomeView(SEOMetadataMixin, SchemaMixin, TemplateView):
             'latest_posts': latest_posts,
             'popular_posts': popular_posts,
             'categories': categories,
-            'schema': json.dumps(self.get_schema())
+            'schema': json.dumps(self.get_schema()),
+            'meta_title': self.get_meta_title(),
+            'meta_description': self.get_meta_description(),
         })
         
         return context
@@ -158,8 +160,12 @@ class ContactView(SEOMetadataMixin, SchemaMixin, BreadcrumbsMixin, TemplateView)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['schema'] = json.dumps(self.get_schema())
-        context['schema_breadcrumbs'] = json.dumps(self.get_schema_breadcrumbs())
+        context.update({
+            'schema': json.dumps(self.get_schema()),
+            'schema_breadcrumbs': json.dumps(self.get_schema_breadcrumbs()),
+            'meta_title': self.get_meta_title(),
+            'meta_description': self.get_meta_description()
+        })
         return context
 
     def get_meta_title(self):
@@ -192,8 +198,12 @@ class PageView(ViewCountMixin, SEOMetadataMixin, BreadcrumbsMixin, SchemaMixin, 
     
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['schema'] = json.dumps(self.get_schema())
-        context['schema_breadcrumbs'] = json.dumps(self.get_schema_breadcrumbs())
+        context.update({
+            'schema': json.dumps(self.get_schema()),
+            'schema_breadcrumbs': json.dumps(self.get_schema_breadcrumbs()),
+            'meta_title': self.get_meta_title(),
+            'meta_description': self.get_meta_description()
+        })
         return context
     
     def get_breadcrumbs(self):
