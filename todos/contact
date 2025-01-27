@@ -1,7 +1,0 @@
-Styling: Once the form is functional, we’ll refine the design to match your site.
-Functionality: Implement email notifications, CAPTCHA, success/failure messages
-Styling: Apply Tailwind CSS classes for better aesthetics.
-
-
-Email Template: Use Django’s EmailMessage and templates for better formatting.
-
