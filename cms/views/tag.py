@@ -2,7 +2,7 @@ from django.views.generic import ListView
 from django.shortcuts import get_object_or_404
 from django.utils.translation import gettext_lazy as _
 from cms.models import Post, Tag
-from cms.views.mixins_view import SEOMetadataMixin, SchemaMixin, BreadcrumbsMixin, ViewCountMixin
+from cms.views.mixins import SEOMetadataMixin, SchemaMixin, BreadcrumbsMixin, ViewCountMixin
 import json
 
 class TagView(ViewCountMixin, SEOMetadataMixin, BreadcrumbsMixin, SchemaMixin, ListView):

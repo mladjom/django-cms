@@ -3,7 +3,7 @@ from django.views.generic import ListView, DetailView
 from django.utils.translation import gettext as _
 from cms.models import Post
 from cms.settings import SITE_SETTINGS, BLOG_SETTINGS
-from cms.views.mixins_view import SEOMetadataMixin, BreadcrumbsMixin, SchemaMixin, ViewCountMixin
+from cms.views.mixins import SEOMetadataMixin, BreadcrumbsMixin, SchemaMixin, ViewCountMixin
 import json
 
 class PostListView(SEOMetadataMixin, BreadcrumbsMixin, SchemaMixin, ListView):

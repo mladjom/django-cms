@@ -61,7 +61,7 @@ def image_upload_path(instance, filename):
     )
 
     
-class FeaturedImageMixin(models.Model):
+class FeaturedImageModel(models.Model):
     featured_image = models.ImageField(
         upload_to=image_upload_path,  
         blank=True,

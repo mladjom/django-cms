@@ -1,6 +1,6 @@
 from django.views.generic import DetailView, TemplateView
 from cms.models import Page, Post, Category
-from cms.views.mixins_view import ViewCountMixin, SEOMetadataMixin, BreadcrumbsMixin, SchemaMixin
+from cms.views.mixins import ViewCountMixin, SEOMetadataMixin, BreadcrumbsMixin, SchemaMixin
 import json
 from django.db.models import Count, Q
 from cms.settings import SITE_SETTINGS

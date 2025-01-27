@@ -7,7 +7,7 @@ from django.utils.translation import gettext as _
 from django.views.generic import ListView
 from cms.models import Category, Post
 from cms.settings import BLOG_SETTINGS
-from cms.views.mixins_view import BaseMixin, BreadcrumbsMixin, SchemaMixin, SEOMetadataMixin, ViewCountMixin
+from cms.views.mixins import BaseMixin, BreadcrumbsMixin, SchemaMixin, SEOMetadataMixin, ViewCountMixin
 import json
 from django.shortcuts import get_object_or_404
 
