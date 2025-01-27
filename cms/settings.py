@@ -4,7 +4,6 @@ SITE_SETTINGS = {
     'TAGLINE': 'Empowering you with knowledge and inspiration.',  # Clear value proposition
     'URL': 'https://www.your-website.com',  # Replace with your actual domain
     'LOGO': '/static/images/logo.png',  # Update path if your logo is elsewhere
-    'EMAIL': 'info@your-website.com',  # Replace with your actual email address
 }
 
 BLOG_SETTINGS = {

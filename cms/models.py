@@ -111,3 +111,14 @@ class Page(models.Model):
         if not self.slug:
             self.slug = slugify(self.title)
         super(Page, self).save(*args, **kwargs)
+
+
+class ContactMessage(models.Model):
+    name = models.CharField(max_length=100)
+    email = models.EmailField()
+    subject = models.CharField(max_length=200)
+    message = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"Message from {self.name} - {self.email}"

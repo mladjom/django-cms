@@ -1,11 +1,12 @@
 from django.urls import path
 from django.contrib.sitemaps.views import sitemap
-from .views import HomeView, CategoryView, TagView, PostDetailView, PageView, PostListView, CategoryListView
+from .views import HomeView, CategoryView, TagView, PostDetailView, PageView, PostListView, CategoryListView, ContactView
 from .sitemaps import sitemaps
 
 urlpatterns = [
     # Home URL
     path('', HomeView.as_view(), name='home'),  
+    path('contact/', ContactView.as_view(), name='contact'),  
     # Post and Paginations URLs
     path('posts/', PostListView.as_view(), name='post_list'),  # List all posts
     path('posts/page-<int:page>/', PostListView.as_view(), name='post_list_paginated'),

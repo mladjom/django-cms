@@ -1,7 +1,7 @@
 from cms.views.post_view import PostListView, PostDetailView
 from cms.views.category_view import CategoryView, CategoryListView
 from cms.views.tag_view import TagView
-from cms.views.page_view import HomeView, PageView
+from cms.views.page_view import HomeView, PageView, ContactView
 
 __all__ = [
     "PostListView",
@@ -11,4 +11,5 @@ __all__ = [
     "TagView",
     "HomeView",
     "PageView",
+    "ContactView",
     ]
