@@ -1,8 +1,7 @@
 {% load i18n %}
-
 <nav class="mt-12 flex justify-between">
     {% if prev_post %}
-    <a href="{{ prev_post }}" 
+    <a href="{{ prev_post.get_absolute_url }}" 
        class="flex items-center text-text-secondary hover:text-brand-accent">
         <svg class="h-5 w-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
@@ -10,9 +9,8 @@
         {% trans 'Previous Post' %}
     </a>
     {% endif %}
-    
     {% if next_post %}
-    <a href="{{ next_post }}" 
+    <a href="{{ next_post.get_absolute_url }}" 
        class="flex items-center text-text-secondary hover:text-brand-accent ml-auto">
         {% trans 'Next Post' %}
         <svg class="h-5 w-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">

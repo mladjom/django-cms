@@ -24,7 +24,9 @@
             </h2>
             <div class="flex justify-between items-center">
                 <span class="text-text-secondary">
-                    {{ category.posts.count }} Posts
+                    {{ category.posts.active.count }}
+ 
+                    {% trans 'Posts' %}
                 </span>
                 {% comment %} {% if category.featured_image %}
                 <img src="{{ category.featured_image.url }}" 

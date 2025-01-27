@@ -1,6 +1,7 @@
 from django.contrib import admin
 from django.utils.html import format_html
 from django.utils.translation import gettext_lazy as _
+from django.utils.safestring import mark_safe
 from django.db.models import Count
 from .models import Category, Tag, Post, Page
 
@@ -39,11 +40,11 @@ class TagAdmin(admin.ModelAdmin):
 @admin.register(Post)
 class PostAdmin(admin.ModelAdmin):
     list_display = ('title', 'author', 'category', 'status', 'is_featured', 
-                   'view_count', 'created_at', 'display_featured_image')
+                   'view_count', 'created_at', 'featured_image_preview')
     list_filter = ('status', 'is_featured', 'category', 'author', 'created_at')
     search_fields = ('title', 'content', 'meta_title')
     prepopulated_fields = {'slug': ('title',)}
-    readonly_fields = ('view_count', 'created_at', 'updated_at')
+    readonly_fields = ('view_count', 'created_at', 'updated_at', 'featured_image_preview')
     filter_horizontal = ('tags',)
     date_hierarchy = 'created_at'
     save_on_top = True
@@ -52,8 +53,8 @@ class PostAdmin(admin.ModelAdmin):
         (_('Basic Information'), {
             'fields': ('title', 'slug', 'author', 'content', 'excerpt')
         }),
-        (_('Media'), {
-            'fields': ('featured_image',)
+        (_('Featured Image'), {
+            'fields': ('featured_image', 'featured_image_preview'),
         }),
         (_('Categories and Tags'), {
             'fields': ('category', 'tags')
@@ -68,11 +69,12 @@ class PostAdmin(admin.ModelAdmin):
         }),
     )
     
-    def display_featured_image(self, obj):
+
+    def featured_image_preview(self, obj):
         if obj.featured_image:
-            return format_html('<img src="{}" width="50" height="50" />', obj.featured_image.url)
-        return ''
-    display_featured_image.short_description = _('Image')
+            return mark_safe(f'<img src="{obj.featured_image.url}" style="max-width:200px; max-height:200px;" />')
+        return 'No Image'
+    featured_image_preview.short_description = _('Image Preview')
     
     def get_readonly_fields(self, request, obj=None):
         if obj:  # editing an existing object

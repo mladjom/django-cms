@@ -16,7 +16,7 @@ class CategoryListView(BaseMixin, SEOMetadataMixin, BreadcrumbsMixin, SchemaMixi
     model = Category
     template_name = 'blog/category_list.html'
     context_object_name = 'categories'
-    paginate_by = 12
+    paginate_by = 3
     page_kwarg = 'page'
     
     def get_queryset(self):
@@ -58,7 +58,7 @@ class CategoryListView(BaseMixin, SEOMetadataMixin, BreadcrumbsMixin, SchemaMixi
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['pagination_base_url'] = 'category'
+        context['pagination_base_url'] = reverse('category_list')
         context['schema'] = json.dumps(self.get_schema())
         context['schema_breadcrumbs'] = json.dumps(self.get_schema_breadcrumbs())
         return context
@@ -78,7 +78,7 @@ class CategoryView(ViewCountMixin, SEOMetadataMixin, BreadcrumbsMixin, SchemaMix
     model = Category
     template_name = 'blog/category_posts.html'
     context_object_name = 'posts'
-    paginate_by = 12
+    paginate_by = 2
     page_kwarg = 'page'
 
     

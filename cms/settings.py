@@ -31,7 +31,7 @@ IMAGE_SETTINGS = {
     # Upload path settings
     'UPLOAD_PATH_FORMAT': '{model_name}s/{year}/{month}/{day}',
 
-    # Category-specific settings
+    # Taxonomy-specific settings
     'TAXONOMY': {
         'WIDTH': 768,
         'ASPECT_RATIO': (16, 10)

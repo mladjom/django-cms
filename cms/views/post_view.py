@@ -14,8 +14,8 @@ class PostListView(SEOMetadataMixin, BreadcrumbsMixin, SchemaMixin, ListView):
     page_kwarg = 'page'
     
     def get_queryset(self):
-        return Post.objects.filter(
-            status=1  # Published posts only
+        return self.model.objects.filter(
+            status=1  
         ).select_related(
             'author', 'category'
         ).prefetch_related(
@@ -40,21 +40,16 @@ class PostListView(SEOMetadataMixin, BreadcrumbsMixin, SchemaMixin, ListView):
                         "name": post.author.get_full_name() or post.author.username
                     }
                 }
-                for post in self.get_queryset()[:5]  # Use get_queryset instead of get_context_data
+                for post in self.get_queryset()[:5] 
             ]
         }
         return schema
         
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        
-        paginate_base_url = 'post_list'
-        featured_posts = Post.objects.filter(
-            status=1, is_featured=True
-        ).select_related('author', 'category').prefetch_related('tags')[:3]
+        paginate_base_url = reverse('post_list')
         
         context.update({
-            'featured_posts': featured_posts,
             'paginate_base_url': paginate_base_url,
             'schema': json.dumps(self.get_schema()),
             'schema_breadcrumbs': json.dumps(self.get_schema_breadcrumbs())
@@ -63,7 +58,7 @@ class PostListView(SEOMetadataMixin, BreadcrumbsMixin, SchemaMixin, ListView):
         return context
 
     def get_meta_title(self):
-        return f"{BLOG_SETTINGS['TITLE']} - {SITE_SETTINGS['NAME']}"
+        return str(BLOG_SETTINGS['TITLE'])
     
     def get_meta_description(self):
         return str(BLOG_SETTINGS['DESCRIPTION'])

@@ -3,7 +3,7 @@ from django.contrib.auth.models import User
 from django.urls import reverse
 from django.utils.text import slugify
 from django.utils.translation import gettext_lazy as _
-
+from cms.mixins.featured_image_mixin import FeaturedImageMixin
 
 class Category(models.Model):
     name = models.CharField(max_length=100, verbose_name=_('Category Name'))
@@ -28,6 +28,7 @@ class Category(models.Model):
             self.slug = slugify(self.name)
         super(Category, self).save(*args, **kwargs)
 
+
 class Tag(models.Model):
     name = models.CharField(max_length=100, verbose_name=_('Tag Name'))
     slug = models.SlugField(max_length=100, unique=True, verbose_name=_('Slug'))
@@ -46,7 +47,11 @@ class Tag(models.Model):
             self.slug = slugify(self.name)
         super(Tag, self).save(*args, **kwargs)
 
-class Post(models.Model):
+class PostManager(models.Manager):
+    def active(self):
+        return self.filter(status=1)
+
+class Post(FeaturedImageMixin, models.Model):
     title = models.CharField(max_length=255, unique=True, verbose_name=_('Title'))
     slug = models.SlugField(max_length=100, unique=True, verbose_name=_('Slug'))
     author = models.ForeignKey(User, on_delete=models.PROTECT, related_name='posts', verbose_name=_('Author'))
@@ -63,9 +68,9 @@ class Post(models.Model):
     updated_at = models.DateTimeField(auto_now=True, verbose_name=_('Updated At'))
     status = models.IntegerField(choices=[(0, "Draft"), (1, "Published")], default=0, verbose_name=_('Status'))
     is_featured = models.BooleanField(default=False, verbose_name=_('Is Featured'))
-
     view_count = models.PositiveIntegerField(default=0, editable=False, verbose_name=_('View Count'))
-    featured_image = models.ImageField(upload_to='uploads/', blank=True, verbose_name=_('Featured Image'))
+
+    objects = PostManager()
 
     class Meta:
         verbose_name = _('Post')
@@ -81,7 +86,7 @@ class Post(models.Model):
         if not self.slug:
             self.slug = slugify(self.title)
         super(Post, self).save(*args, **kwargs)
-
+        
 
 class Page(models.Model):
     title = models.CharField(max_length=255, unique=True, verbose_name=_('Title'))
