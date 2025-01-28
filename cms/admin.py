@@ -4,6 +4,7 @@ from django.utils.translation import gettext_lazy as _
 from django.utils.safestring import mark_safe
 from django.db.models import Count
 from .models import Category, Tag, Post, Page
+from cms.models.admin_notification import AdminNotification
 
 @admin.register(Category)
 class CategoryAdmin(admin.ModelAdmin):
@@ -113,3 +114,47 @@ class PageAdmin(admin.ModelAdmin):
         }),
     )
 
+@admin.register(AdminNotification)
+class AdminNotificationAdmin(admin.ModelAdmin):
+    list_display = ('title', 'level_badge', 'created_at', 'expires_at', 'recipient_count', 'is_read')
+    list_filter = ('level', 'is_read', 'created_at', 'expires_at')
+    search_fields = ('title', 'message', 'recipients__username', 'recipients__email')
+    readonly_fields = ('created_at',)
+    filter_horizontal = ('recipients',)
+    save_on_top = True
+   
+    def level_badge(self, obj):
+        colors = {
+            'info': 'blue',
+            'warning': 'orange',
+            'error': 'red'
+        }
+        color = colors.get(obj.level, 'gray')  # Default to 'gray' if level is not found
+        return format_html(
+            '<span style="color: white; background-color: {}; padding: 3px 10px; border-radius: 3px;">{}</span>',
+            color,
+            obj.get_level_display()
+        )
+    level_badge.short_description = _('Level')
+
+    def recipient_count(self, obj):
+        return obj.recipients.count()
+    recipient_count.short_description = _('Number of Recipients')
+
+    def get_queryset(self, request):
+        return super().get_queryset(request).prefetch_related('recipients')
+
+    fieldsets = (
+        (None, {
+            'fields': ('title', 'message', 'level')
+        }),
+        (_('Recipients'), {
+            'fields': ('recipients',)
+        }),
+        (_('Timing'), {
+            'fields': ('created_at', 'expires_at')
+        }),
+        (_('Status'), {
+            'fields': ('is_read',)
+        })
+    )

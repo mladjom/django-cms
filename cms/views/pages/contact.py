@@ -9,6 +9,7 @@ from cms.models import ContactMessage
 import logging
 from django.views.generic import TemplateView
 from cms.views.mixins import SEOMetadataMixin, SchemaMixin, BreadcrumbsMixin
+from cms.models.admin_notification import AdminNotification
 
 logger = logging.getLogger(__name__)
 
@@ -25,6 +26,23 @@ class ContactView(SEOMetadataMixin, SchemaMixin, BreadcrumbsMixin, TemplateView)
 
             # Save message to the database
             contact_message = ContactMessage.objects.create(**form.cleaned_data)
+
+            # Create admin notification
+            AdminNotification.objects.create(
+                title=_("New Contact Form Submission"),
+                message=_(
+                    "A new contact form submission has been received.\n\n"
+                    "Name: {name}\n"
+                    "Email: {email}\n"
+                    "Subject: {subject}\n\n"
+                    "Message:\n{message}"
+                ).format(
+                    name=form.cleaned_data['name'],
+                    email=form.cleaned_data['email'],
+                    subject=form.cleaned_data['subject'],
+                    message=form.cleaned_data['message']
+                ),
+            )
 
             # Prepare email details
             subject = _("Contact Form: {subject}").format(subject=form.cleaned_data['subject'])
