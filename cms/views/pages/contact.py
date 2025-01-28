@@ -17,7 +17,7 @@ class ContactView(SEOMetadataMixin, SchemaMixin, BreadcrumbsMixin, TemplateView)
 
     def get(self, request):
         form = ContactForm()
-        return render(request, self.template_name, {'form': form})
+        return render(request, self.template_name, self.get_context_data(form=form))
 
     def post(self, request):
         form = ContactForm(request.POST)
@@ -62,35 +62,37 @@ class ContactView(SEOMetadataMixin, SchemaMixin, BreadcrumbsMixin, TemplateView)
                     send_mail(admin_subject, admin_message, settings.DEFAULT_CONTACT_EMAIL, list(settings.ADMIN_NOTIFICATION_EMAILS))
 
                 # Success message for the user
-                messages.success(request, "Your message has been sent successfully!")
+                messages.success(request, _("Your message has been sent successfully!"))
 
             except BadHeaderError:
-                logger.error("Invalid email header detected.")
-                messages.error(request, "Invalid email header. Please try again.")
+                logger.error(_("Invalid email header detected."))
+                messages.error(request, _("Invalid email header. Please try again."))
             except Exception as e:
-                logger.error(f"Error sending email: {e}")
-                messages.error(request, "An error occurred while sending your message. Please try again later.")
+                logger.error(_("Error sending email: {error}").format(error=e))
+                messages.error(request, _("An error occurred while sending your message. Please try again later."))
 
             return redirect('contact')
         
         # Handle invalid form submission
-        messages.error(request, "There were errors in your submission. Please correct them below.")
-        return render(request, self.template_name, {'form': form})
+        messages.error(request, _("There were errors in your submission. Please correct them below."))
+        return render(request, self.template_name, self.get_context_data(form=form))
 
     def get_schema(self):
         schema = {
             **self.get_base_schema(),
             "@type": "WebPage",
-            "name": "Contact Us",
-            "description": "Contact us for any queries",
+            "name": _("Contact Us"),
+            "description": _("Contact us for any queries"),
             "mainEntityOfPage": self.request.build_absolute_uri(),
-            "text": "Contact us for any queries"
+            "text": _("Contact us for any queries")
         }
         return schema
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        form = kwargs.get('form', ContactForm())
         context.update({
+            'form': form,
             'schema': json.dumps(self.get_schema()),
             'schema_breadcrumbs': json.dumps(self.get_schema_breadcrumbs()),
             'meta_title': self.get_meta_title(),
@@ -99,12 +101,12 @@ class ContactView(SEOMetadataMixin, SchemaMixin, BreadcrumbsMixin, TemplateView)
         return context
 
     def get_meta_title(self):
-        return "Contact Us"
+        return _("Contact Us")
 
     def get_meta_description(self):
-        return "Contact us for any queries"
+        return _("Contact us for any queries")
     
     def get_breadcrumbs(self):
         breadcrumbs = super().get_breadcrumbs()
-        breadcrumbs.append({'name': 'Contact Us', 'url': self.request.path})
+        breadcrumbs.append({'name': _("Contact"), 'url': self.request.path})
         return breadcrumbs
