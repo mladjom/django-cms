@@ -1,17 +1,159 @@
 {% extends "base.html" %}
+{% load blog_filters %}
+{% load image_tags %}
 
 
 {% block content %}
 {% if featured_posts %}
-<section class="mb-12">
-    <h2 class="text-2xl font-bold mb-6 text-brand-primary">
-        Featured Posts
-    </h2>
-    <div class="grid lg:grid-cols-3 gap-6">
-        {% for post in featured_posts %}
-            {% include "components/post_card.html" %}
-        {% endfor %}
+<!-- Hero Section with Featured Posts -->
+<section class="mb-16">
+    <h2 class="sr-only">Featured Posts</h2>
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {% with featured_posts|first as main_post %}
+        <!-- Main Featured Post -->
+        <div class="relative h-96 lg:h-[500px] rounded-xl overflow-hidden group">
+            {% responsive_image main_post.featured_image alt_text=main_post.title css_class="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"  %} 
+            <div class="absolute inset-0 bg-gradient-to-t from-black/70 to-black/20">
+                <div class="absolute bottom-0 p-6 space-y-2">
+                    <div class="flex gap-2">
+                            <a href="{{ main.post.category.get_absolute_url }}" 
+                               class="text-xs font-medium px-3 py-1 bg-blue-500 text-white rounded-full">
+                                {{ main_post.category.name }}
+                            </a>
+                    </div>
+                    <h3 class="text-2xl font-bold text-white">
+                        <a href="{{ main_post.get_absolute_url }}" class="hover:underline">
+                            {{ main_post.title }}
+                        </a>
+                    </h3>
+                    <p class="text-gray-200">{{ main_post.excerpt|truncatewords:25 }}</p>
+                </div>
+            </div>
+        </div>
+        {% endwith %}
+
+        <!-- Secondary Featured Posts -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+            {% for post in featured_posts|slice:"1:5" %}
+            <div class="relative h-64 rounded-xl overflow-hidden group">
+                {% responsive_image post.featured_image alt_text=post.title css_class="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" %}
+
+                <div class="absolute inset-0 bg-gradient-to-t from-black/70 to-black/20">
+                    <div class="absolute bottom-0 p-4 space-y-1">
+                        <div class="flex gap-2">
+                                <a href="{{ post.category.get_absolute_url }}" 
+                                   class="text-xs font-medium px-2 py-1 bg-blue-500 text-white rounded-full">
+                                    {{ post.category.name }}
+                                </a>
+                        </div>
+                        <h3 class="text-lg font-bold text-white">
+                            <a href="{{ post.get_absolute_url }}" class="hover:underline">
+                                {{ post.title }}
+                            </a>
+                        </h3>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
     </div>
 </section>
+
+<!-- Main Content Grid -->
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-12">
+    <!-- Latest and Popular Posts -->
+    <div class="lg:col-span-2 space-y-12">
+        <!-- Latest Posts -->
+        <section>
+            <h2 class="text-2xl font-bold mb-6">Latest Posts</h2>
+            <div class="space-y-8">
+                {% for post in latest_posts %}
+                <article class="flex gap-6">
+                    <a href="{{ post.get_absolute_url }}" class="shrink-0">
+                        {% responsive_image post.image alt_text=post.title css_class="w-32 h-32 rounded-lg object-cover" %}
+                    </a>
+                    <div class="space-y-2">
+                        <div class="flex gap-2">
+                            {% for category in post.categories.all|slice:":2" %}
+                                <a href="{{ category.get_absolute_url }}" 
+                                   class="text-xs font-medium text-blue-600 hover:text-blue-800">
+                                    {{ category.name }}
+                                </a>
+                                {% if not forloop.last %}<span class="text-gray-400">•</span>{% endif %}
+                            {% endfor %}
+                        </div>
+                        <h3 class="text-xl font-bold">
+                            <a href="{{ post.get_absolute_url }}" class="hover:text-blue-600">
+                                {{ post.title }}
+                            </a>
+                        </h3>
+                        <p class="text-gray-600">{{ post.excerpt|truncatewords:20 }}</p>
+                    </div>
+                </article>
+                {% endfor %}
+            </div>
+        </section>
+
+        <!-- Popular Posts -->
+        <section>
+            <h2 class="text-2xl font-bold mb-6">Popular Posts</h2>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                {% for post in popular_posts %}
+                <article class="space-y-3">
+                    <a href="{{ post.get_absolute_url }}" class="block">
+                        {% responsive_image post.image alt_text=post.title css_class="w-full aspect-video rounded-lg object-cover" %}
+                    </a>
+                    <div class="space-y-2">
+                        <div class="flex gap-2">
+                            {% for category in post.categories.all|slice:":1" %}
+                                <a href="{{ category.get_absolute_url }}" 
+                                   class="text-xs font-medium text-blue-600 hover:text-blue-800">
+                                    {{ category.name }}
+                                </a>
+                            {% endfor %}
+                        </div>
+                        <h3 class="text-lg font-bold">
+                            <a href="{{ post.get_absolute_url }}" class="hover:text-blue-600">
+                                {{ post.title }}
+                            </a>
+                        </h3>
+                    </div>
+                </article>
+                {% endfor %}
+            </div>
+        </section>
+    </div>
+
+    <!-- Sidebar -->
+    <aside class="space-y-8">
+        <!-- Categories -->
+        <section class="bg-gray-50 rounded-xl p-6">
+            <h2 class="text-xl font-bold mb-4">Categories</h2>
+            <div class="space-y-2">
+                {% for category in categories %}
+                <a href="{{ category.get_absolute_url }}" 
+                   class="flex items-center justify-between group">
+                    <span class="text-gray-600 group-hover:text-blue-600">{{ category.name }}</span>
+                    <span class="text-sm text-gray-400">{{ category.post_count }}</span>
+                </a>
+                {% endfor %}
+            </div>
+        </section>
+
+        <!-- Newsletter Signup -->
+        <section class="bg-blue-50 rounded-xl p-6">
+            <h2 class="text-xl font-bold mb-2">Stay Updated</h2>
+            <p class="text-gray-600 mb-4">Get the latest posts delivered right to your inbox.</p>
+            <form class="space-y-3">
+                <input type="email" placeholder="Your email address" 
+                       class="w-full px-4 py-2 rounded-lg border border-gray-200 focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                <button type="submit" 
+                        class="w-full bg-blue-600 text-white py-2 px-4 rounded-lg font-medium hover:bg-blue-700 transition-colors">
+                    Subscribe
+                </button>
+            </form>
+        </section>
+    </aside>
+</div>
 {% endif %}
 {% endblock %}

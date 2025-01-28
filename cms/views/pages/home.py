@@ -13,7 +13,7 @@ class HomeView(SEOMetadataMixin, SchemaMixin, TemplateView):
     def get_featured_posts(self):
         return Post.objects.filter(
             status=1, is_featured=True
-        ).select_related('author', 'category').prefetch_related('tags')[:3]
+        ).select_related('author', 'category').prefetch_related('tags')[:5]
 
     def get_schema(self):
 
@@ -42,13 +42,14 @@ class HomeView(SEOMetadataMixin, SchemaMixin, TemplateView):
         
         # Optimize queries with select_related and prefetch_related
         featured_posts = self.get_featured_posts()
+        
         latest_posts = Post.objects.filter(status=1).select_related(
             'author', 'category'
         ).prefetch_related('tags').order_by('-created_at')[:4]
         
         popular_posts = Post.objects.filter(status=1).select_related(
             'author', 'category'
-        ).prefetch_related('tags').order_by('-view_count')[:5]
+        ).prefetch_related('tags').order_by('-view_count')[:6]
         
         categories = Category.objects.annotate(
             post_count=Count('posts', filter=Q(posts__status=1))
