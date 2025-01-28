@@ -70,7 +70,7 @@
                 {% for post in latest_posts %}
                 <article class="flex gap-6">
                     <a href="{{ post.get_absolute_url }}" class="shrink-0">
-                        {% responsive_image post.image alt_text=post.title css_class="w-32 h-32 rounded-lg object-cover" %}
+                        {% responsive_image post.featured_image alt_text=post.title css_class="w-32 h-32 rounded-lg object-cover" %}
                     </a>
                     <div class="space-y-2">
                         <div class="flex gap-2">
@@ -101,7 +101,7 @@
                 {% for post in popular_posts %}
                 <article class="space-y-3">
                     <a href="{{ post.get_absolute_url }}" class="block">
-                        {% responsive_image post.image alt_text=post.title css_class="w-full aspect-video rounded-lg object-cover" %}
+                        {% responsive_image post.featured_image alt_text=post.title css_class="w-full aspect-video rounded-lg object-cover" %}
                     </a>
                     <div class="space-y-2">
                         <div class="flex gap-2">

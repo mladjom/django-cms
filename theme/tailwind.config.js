@@ -12,7 +12,7 @@ module.exports = {
               'brand-primary': '#2c3e50',
               'brand-accent': '#3498db',
               'text-primary': '#333',
-              'text-secondary': '#666',
+              'text-secondary': '#4b5563',
           },
           typography: {
               DEFAULT: {

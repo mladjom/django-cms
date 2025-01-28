@@ -10,7 +10,7 @@ class PostListView(SEOMetadataMixin, BreadcrumbsMixin, SchemaMixin, ListView):
     model = Post
     template_name = 'blog/post_list.html'
     context_object_name = 'posts'
-    paginate_by = 3
+    paginate_by = 6
     page_kwarg = 'page'
     
     def get_queryset(self):
