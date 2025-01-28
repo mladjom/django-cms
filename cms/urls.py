@@ -3,7 +3,9 @@ from django.contrib.sitemaps.views import sitemap
 from cms.views.post import PostListView, PostDetailView
 from cms.views.category import CategoryView, CategoryListView
 from cms.views.tag import TagView
-from cms.views.page import HomeView, PageView, ContactView
+from cms.views.pages.page import PageView
+from cms.views.pages.home import HomeView
+from cms.views.pages.contact import ContactView
 from .sitemaps import sitemaps
 
 urlpatterns = [
