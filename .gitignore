@@ -44,6 +44,8 @@ Thumbs.db
 env/
 venv/
 ENV/
+.env.development
+.env.production
 
 # Coverage reports
 .coverage
@@ -76,4 +78,4 @@ views.old.py
 templates.old/
 
 todos/
-.env
+schema.png
