@@ -1,11 +1,11 @@
-from .settings import SITE_SETTINGS, BLOG_SETTINGS
+from cms.settings import SITE_SETTINGS, BLOG_SETTINGS
 
 def app_settings(request):
     """
     Exposes app-specific settings to all templates.
     """
     return {
-        'site_name': SITE_SETTINGS.get('NAME', 'Default Site Name'),
+        'site_name': SITE_SETTINGS.get('NAME'),
         'site_tagline': SITE_SETTINGS.get('TAGLINE', ''),
         'site_description': SITE_SETTINGS.get('DESCRIPTION', ''),
         'site_url': SITE_SETTINGS.get('URL', ''),
