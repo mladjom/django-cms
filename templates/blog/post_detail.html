@@ -11,13 +11,13 @@
             {{ post.title }}
         </h1>
         
-        <div class="flex items-center text-text-secondary">            
+        <div class="flex items-center text-text-secondary font-medium text-sm text-text-secondary">            
                <div>
-                <span class="font-medium"><time datetime="{{ post.created_at|date:'Y-m-d' }}">
+                <span><time datetime="{{ post.created_at|date:'Y-m-d' }}">
                     {{ post.created_at|relative_date}}
                 </time></span>               
                 <span class="mx-2">•</span>
-                <span class="font-medium">{{ post.view_count }} {% trans 'views'%}</span>
+                <span>{{ post.view_count }} {% trans 'views'%}</span>
             </div>
         </div>
     </header>
