@@ -2,8 +2,9 @@ from django.contrib import admin
 from django.utils.html import format_html
 from django.utils.translation import gettext_lazy as _
 from django.utils.safestring import mark_safe
-from django.db.models import Count
 from .models import Category, Tag, Post, Page
+from django_ace import AceWidget
+from django import forms
 
 @admin.register(Category)
 class CategoryAdmin(admin.ModelAdmin):
@@ -37,8 +38,17 @@ class TagAdmin(admin.ModelAdmin):
         return obj.posts.count()
     post_count.short_description = _('Posts')
 
+class PostForm(forms.ModelForm):
+    # Use AceWidget for the 'content' field
+    content = forms.CharField(widget=AceWidget(mode='html', theme='monokai', width='900px', height='500px', fontsize='15px'))
+
+    class Meta:
+        model = Post
+        fields = '__all__'
+
 @admin.register(Post)
 class PostAdmin(admin.ModelAdmin):
+    form = PostForm  # Use the custom form
     list_display = ('title', 'author', 'category', 'status', 'is_featured', 
                    'view_count', 'created_at', 'featured_image_preview')
     list_filter = ('status', 'is_featured', 'category', 'author', 'created_at')
@@ -48,7 +58,6 @@ class PostAdmin(admin.ModelAdmin):
     filter_horizontal = ('tags',)
     date_hierarchy = 'created_at'
     save_on_top = True
-    
     fieldsets = (
         (_('Basic Information'), {
             'fields': ('title', 'slug', 'author', 'content', 'excerpt')

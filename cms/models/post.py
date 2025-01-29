@@ -6,6 +6,7 @@ from django.urls import reverse
 from cms.models.category import Category
 from cms.models.tag import Tag
 from cms.models.featured_image import FeaturedImageModel
+from bs4 import BeautifulSoup
 
 class PostManager(models.Manager):
     def active(self):
@@ -45,4 +46,6 @@ class Post(FeaturedImageModel, models.Model):
     def save(self, *args, **kwargs):
         if not self.slug:
             self.slug = slugify(self.title)
+        soup = BeautifulSoup(self.content, 'html.parser')
+        self.content = soup.prettify()  # Prettify the HTML            
         super(Post, self).save(*args, **kwargs)
