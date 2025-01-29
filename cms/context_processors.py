@@ -1,4 +1,4 @@
-from cms.settings import SITE_SETTINGS, BLOG_SETTINGS
+from .settings import SITE_SETTINGS, BLOG_SETTINGS
 
 def app_settings(request):
     """

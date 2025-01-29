@@ -3,9 +3,9 @@ from django.contrib.auth.models import User
 from django.utils.text import slugify
 from django.utils.translation import gettext_lazy as _
 from django.urls import reverse
-from cms.models.category import Category
-from cms.models.tag import Tag
-from cms.models.featured_image import FeaturedImageModel
+from .category import Category
+from .tag import Tag
+from .featured_image import FeaturedImageModel
 from bs4 import BeautifulSoup
 
 class PostManager(models.Manager):

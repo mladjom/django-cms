@@ -1,9 +1,9 @@
-from cms.views.post import PostListView, PostDetailView
-from cms.views.category import CategoryView, CategoryListView
-from cms.views.tag import TagView
-from cms.views.pages.page import PageView
-from cms.views.pages.home import HomeView
-from cms.views.pages.contact import ContactView
+from .post import PostListView, PostDetailView
+from .category import CategoryView, CategoryListView
+from .tag import TagView
+from .pages.page import PageView
+from .pages.home import HomeView
+from .pages.contact import ContactView
 
 __all__ = [
     "PostListView",
