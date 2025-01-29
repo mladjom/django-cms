@@ -1,6 +1,6 @@
-# My Awesome Site
+# Django CMS
 
-A modern and minimal website built with Django and Tailwind CSS.
+A modern and minimal cms built with Django and Tailwind CSS.
 
 ## Features
 
@@ -24,15 +24,21 @@ A modern and minimal website built with Django and Tailwind CSS.
 1. **Clone the repository:**
 
    ```sh
-   git clone git@github.com:yourusername/yourproject.git
-   cd yourproject
+   git clone git@github.com:mladjom/django-cms.git
+   cd django-cms
    ```
 
 2. **Create and activate a virtual environment:**
 
+   Linux
+   ```sh
+   python -m venv ~/.virtualenvs/django-cms
+   source ~/.virtualenvs/django-cms/bin/activate 
+   ```
+   Windows
    ```sh
    python -m venv venv
-   source venv/bin/activate  # On Windows use `venv\Scripts\activate`
+   source venv/bin/activate 
    ```
 
 3. **Install dependencies:**
