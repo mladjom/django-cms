@@ -9,6 +9,7 @@ class StaticSitemap(Sitemap):
     def items(self):
         return [
             'home',
+            'contact',
             'post_list',
             'category_list',
         ]
