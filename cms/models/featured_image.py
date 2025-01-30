@@ -195,3 +195,9 @@ class FeaturedImageModel(models.Model):
                 logger.error(f"Error deleting original image: {e}")
 
         super().delete(*args, **kwargs)
+
+    def calculate_height(self, width, aspect_ratio=None):
+        """Calculate height based on width and aspect ratio."""
+        if aspect_ratio is None:
+            aspect_ratio = IMAGE_SETTINGS['ASPECT_RATIO']
+        return int(width * (aspect_ratio[1] / aspect_ratio[0]))
