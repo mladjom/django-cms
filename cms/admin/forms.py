@@ -9,7 +9,7 @@ class PostForm(forms.ModelForm):
             theme='monokai',
             width='900px',
             height='500px',
-            fontsize='15px'
+            fontsize='15px',
         )
     )
 

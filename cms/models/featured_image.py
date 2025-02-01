@@ -6,7 +6,6 @@ from django.utils.translation import gettext_lazy as _
 import logging
 from PIL import Image
 from datetime import datetime
-
 from cms.settings import IMAGE_SETTINGS
 
 logger = logging.getLogger(__name__)
@@ -59,7 +58,6 @@ def image_upload_path(instance, filename):
         ),
         filename
     )
-
     
 class FeaturedImageModel(models.Model):
     featured_image = models.ImageField(
@@ -94,7 +92,9 @@ class FeaturedImageModel(models.Model):
             relative_path = os.path.join(os.path.dirname(self.featured_image.name), filename)
             variants[width] = {
                 'url': f"{settings.MEDIA_URL}{relative_path}",
-                'path': os.path.join(base_path, filename)
+                #'path': os.path.join(base_path, filename),
+                'path': os.path.join(settings.MEDIA_ROOT, relative_path)
+
             }
         return variants
 

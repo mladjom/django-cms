@@ -2,8 +2,9 @@ from django.db import models
 from django.utils.text import slugify
 from django.utils.translation import gettext_lazy as _
 from django.urls import reverse
+from .featured_image import FeaturedImageModel
 
-class Category(models.Model):
+class Category(FeaturedImageModel, models.Model):
     name = models.CharField(max_length=100, verbose_name=_('Category Name'))
     slug = models.SlugField(max_length=100, unique=True, verbose_name=_('Slug'))
     meta_title = models.CharField(max_length=200, blank=True, verbose_name=_('Meta Title'))

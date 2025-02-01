@@ -20,7 +20,6 @@ BLOG_SETTINGS = {
     },
 }
 
-# These are more like constants than configuration
 IMAGE_SETTINGS = {
     'SIZES': [576, 768, 992, 1200],
     'WEBP_QUALITY': 85,
