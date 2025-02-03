@@ -1,5 +1,6 @@
 from pathlib import Path
 from decouple import config, Csv
+import os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -160,7 +161,8 @@ MEDIA_ROOT = BASE_DIR / 'media'
 
 STATIC_URL = '/static/'
 STATICFILES_DIRS = [BASE_DIR / 'static']
-STATIC_ROOT = BASE_DIR / 'staticfiles'
+STATIC_ROOT = os.getenv('STATIC_ROOT', BASE_DIR / 'staticfiles')  # Default to local path if not set
+
 
 # Default primary key field type
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
