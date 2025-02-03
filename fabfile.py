@@ -2,8 +2,8 @@ from fabric import Connection, task
 import os
 
 # Get deployment settings from environment variables
-DEPLOY_USER = os.getenv('DEPLOY_USER', 'mladjo')
-DEPLOY_HOST = os.getenv('DEPLOY_HOST', 'neotec.blog')
+DEPLOY_USER = os.getenv('DEPLOY_USER', 'user')
+DEPLOY_HOST = os.getenv('DEPLOY_HOST', 'site.com')
 PROJECT_PATH = '/var/www/neotec'
 VENV_PATH = '/home/mladjo/.virtualenvs/neotec'
 
