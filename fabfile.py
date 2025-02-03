@@ -8,6 +8,7 @@ DEPLOY_HOST = os.getenv('DEPLOY_HOST', 'site.com')
 PROJECT_PATH = os.getenv('PROJECT_PATH', '/var/www/project_folder')
 VENV_PATH = os.getenv('VENV_PATH', '/home/mladjo/.virtualenvs/venv_folder')
 REPO_URL = os.getenv('REPO_URL', 'https://github.com/yourusername/project.git')
+REPO_PATH = os.getenv('REPO_PATH', 'path/to/repo')
 
 def get_connection():
     return Connection(
@@ -47,7 +48,7 @@ def first_time_setup(ctx):
     
     # Clone the repository
     with conn.cd('/var/www'):
-        conn.run(f'git clone {REPO_URL} neotec')
+        conn.run(f'git clone {REPO_URL} {REPO_PATH}')
     
     # Create and setup virtualenv
     conn.run(f'python -m venv {VENV_PATH}')

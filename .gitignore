@@ -17,6 +17,7 @@ ENV/
 *.pyc
 *.sqlite3
 db.sqlite3
+backup.sql
 
 # Media and static files (if not using separate storage for static/media files)
 media/
