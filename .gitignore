@@ -20,9 +20,6 @@ db.sqlite3
 
 # Media and static files (if not using separate storage for static/media files)
 media/
-static/
-staticfiles/
-static/css/style.css
 
 # IDE/editor files
 .idea/
@@ -50,9 +47,6 @@ ENV/
 # Coverage reports
 .coverage
 *.cover
-
-# Django migrations (optional, if migrations are in source control)
-*/migrations/*
 
 # PyCharm-specific files
 .idea/
