@@ -2,6 +2,50 @@ from fabric import Connection, task, Config
 from invoke import run as local
 from decouple import config
 
+# from fabric import Connection, task
+
+# # Server configuration (can also be loaded from .env)
+# SERVER_HOST = "neotec.blog"
+# SERVER_USER = "mladjo"
+# PROJECT_ROOT = "/var/www/neotec"
+# VENV_PATH = "/home/mladjo/.virtualenv/neotec/bin/activate"
+# REPO_URL = "https://github.com/mladjom/django-cms.git"
+
+# @task
+# def deploy(c):
+#     """Deploy the Django application."""
+#     # Step 1: Connect to the server
+#     conn = Connection(host=SERVER_HOST, user=SERVER_USER)
+
+#     # Step 2: Pull the latest code from the repository
+#     with conn.cd(PROJECT_ROOT):
+#         print("Pulling the latest code from the repository...")
+#         conn.run("git pull origin main")
+
+#     # Step 3: Install dependencies
+#     print("Installing dependencies...")
+#     conn.run(f". {VENV_PATH} && pip install -r {PROJECT_ROOT}/requirements.txt")
+
+#     # Step 4: Apply database migrations
+#     print("Applying database migrations...")
+#     conn.run(f". {VENV_PATH} && python {PROJECT_ROOT}/manage.py migrate")
+
+#     # Step 5: Collect static files
+#     print("Collecting static files...")
+#     conn.run(f". {VENV_PATH} && python {PROJECT_ROOT}/manage.py collectstatic --noinput")
+
+#     # Step 6: Restart the web server
+#     print("Restarting Gunicorn service...")
+#     conn.sudo("systemctl restart gunicorn")
+
+#     print("Restarting Nginx service...")
+#     conn.sudo("systemctl restart nginx")
+
+#     print("Deployment complete!")
+
+
+
+
 # Server configuration
 host = config('SERVER_HOST')
 user = config('SERVER_USER')
