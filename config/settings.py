@@ -160,8 +160,10 @@ MEDIA_URL = 'media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 
 STATIC_URL = '/static/'
-STATICFILES_DIRS = [BASE_DIR / 'static']
-STATIC_ROOT = os.getenv('STATIC_ROOT', BASE_DIR / 'staticfiles')  # Default to local path if not set
+if DEBUG:
+    STATICFILES_DIRS = [BASE_DIR / 'static']
+else:
+    STATIC_ROOT = BASE_DIR / 'static'
 
 
 # Default primary key field type

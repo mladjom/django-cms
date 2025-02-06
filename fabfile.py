@@ -1,4 +1,4 @@
-from fabric import Connection, task
+from fabric import Connection, task, Config
 from invoke import run as local
 from decouple import config
 
@@ -9,8 +9,10 @@ project_root = config('PROJECT_ROOT')
 repo_url = config('REPO_URL')
 branch = config('BRANCH', default='main')
 venv_path = config('VENV_PATH')
+sudo_password = config('SUDO_PASSWORD')
 
-# Create connection
+# Set up Fabric connection with sudo password
+config_data = Config(overrides={'sudo': {'password': sudo_password}})
 conn = Connection(f"{user}@{host}")
 
 @task
@@ -49,8 +51,8 @@ def deploy(c):
 @task
 def restart_services(c):
     """Restart web server and related services."""
-    conn.sudo('systemctl restart gunicorn')
-    conn.sudo('systemctl restart nginx')
+    conn.sudo('systemctl restart gunicorn', password=sudo_password)
+    conn.sudo('systemctl restart nginx', password=sudo_password)
 
 @task
 def full_deploy(c):
