@@ -1,71 +1,93 @@
 from fabric import Connection, task
-import os
-from datetime import datetime
+from invoke import run as local
+from decouple import config
 
-# Configuration (now loaded from .env)
-DEPLOY_USER = os.getenv('DEPLOY_USER', 'user')
-DEPLOY_HOST = os.getenv('DEPLOY_HOST', 'site.com')
-PROJECT_PATH = os.getenv('PROJECT_PATH', '/var/www/project_folder')
-VENV_PATH = os.getenv('VENV_PATH', '/home/mladjo/.virtualenvs/venv_folder')
-REPO_URL = os.getenv('REPO_URL', 'https://github.com/yourusername/project.git')
-REPO_PATH = os.getenv('REPO_PATH', 'path/to/repo')
+# Server configuration
+host = config('SERVER_HOST')
+user = config('SERVER_USER')
+project_root = config('PROJECT_ROOT')
+repo_url = config('REPO_URL')
+branch = config('BRANCH', default='main')
+venv_path = config('VENV_PATH')
 
-def get_connection():
-    return Connection(
-        host=DEPLOY_HOST,
-        user=DEPLOY_USER,
-        connect_kwargs={
-            "key_filename": "~/.ssh/id_rsa",
-        }
-    )
+# Create connection
+conn = Connection(f"{user}@{host}")
 
 @task
-def deploy_from_github(ctx):
-    """Deploy by pulling directly from GitHub"""
-    conn = get_connection()
+def install_system_packages(c):
+    """Install required system packages."""
+    conn.sudo('apt-get update')
+    conn.sudo('apt-get install -y python3-pip python3-venv git')
+
+@task
+def create_virtualenv(c):
+    """Create virtual environment if it doesn't exist."""
+    result = conn.run(f'test -d {venv_path}', warn=True)
+    if result.failed:
+        conn.run(f'python3 -m venv {venv_path}')
+
+@task
+def deploy(c):
+    """Main deployment task."""
+    result = conn.run(f'test -d {project_root}', warn=True)
+    if result.failed:
+        # Clone the repository if it doesn't exist
+        conn.run(f'git clone {repo_url} {project_root}')
     
-    with conn.cd(PROJECT_PATH):
+    with conn.cd(project_root):
         # Pull latest changes
-        conn.run('git pull origin main')
+        conn.run(f'git fetch origin {branch}')
+        conn.run(f'git reset --hard origin/{branch}')
         
-        # Update dependencies and migrate
-        with conn.prefix(f'source {VENV_PATH}/bin/activate'):
+        # Activate virtualenv and install requirements
+        with conn.prefix(f'source {venv_path}/bin/activate'):
+            conn.run('pip install -r requirements.txt')
+            conn.run('python manage.py collectstatic --noinput')
+            conn.run('python manage.py migrate')
+            conn.run('python manage.py clear_cache')
+
+@task
+def restart_services(c):
+    """Restart web server and related services."""
+    conn.sudo('systemctl restart gunicorn')
+    conn.sudo('systemctl restart nginx')
+
+@task
+def full_deploy(c):
+    """Run complete deployment process."""
+    install_system_packages(c)
+    create_virtualenv(c)
+    deploy(c)
+    restart_services(c)
+
+@task
+def quick_deploy(c):
+    """Quick deployment without system updates."""
+    deploy(c)
+    restart_services(c)
+
+@task
+def backup_database(c):
+    """Create a database backup."""
+    timestamp = conn.run('date +%Y%m%d_%H%M%S').stdout.strip()
+    backup_dir = config('BACKUP_DIR', default=f'{project_root}/backups')
+    
+    result = conn.run(f'test -d {backup_dir}', warn=True)
+    if result.failed:
+        conn.run(f'mkdir -p {backup_dir}')
+    
+    with conn.cd(project_root):
+        with conn.prefix(f'source {venv_path}/bin/activate'):
+            conn.run(f'python manage.py dumpdata --indent 2 > {backup_dir}/backup_{timestamp}.json')
+
+@task
+def rollback(c, commit_hash):
+    """Rollback to a specific commit."""
+    with conn.cd(project_root):
+        conn.run(f'git reset --hard {commit_hash}')
+        
+        with conn.prefix(f'source {venv_path}/bin/activate'):
             conn.run('pip install -r requirements.txt')
             conn.run('python manage.py migrate')
-            conn.run('python manage.py collectstatic --noinput')
-        
-        # Restart Gunicorn
-        conn.sudo('systemctl restart gunicorn')
-
-@task
-def first_time_setup(ctx):
-    """Setup the server for the first time"""
-    conn = get_connection()
-    
-    # Create project directory
-    conn.sudo(f'mkdir -p {PROJECT_PATH}')
-    conn.sudo(f'chown {DEPLOY_USER}:{DEPLOY_USER} {PROJECT_PATH}')
-    
-    # Clone the repository
-    with conn.cd('/var/www'):
-        conn.run(f'git clone {REPO_URL} {REPO_PATH}')
-    
-    # Create and setup virtualenv
-    conn.run(f'python -m venv {VENV_PATH}')
-    
-    with conn.prefix(f'source {VENV_PATH}/bin/activate'):
-        conn.run('pip install -r requirements.txt')
-        conn.run('python manage.py migrate')
-        conn.run('python manage.py collectstatic --noinput')
-
-@task
-def sync_media(ctx):
-    """Sync media files from local to server"""
-    conn = get_connection()
-    
-    # Create backup of server media
-    timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
-    conn.run(f'cp -r {PROJECT_PATH}/media {PROJECT_PATH}/media_backup_{timestamp}')
-    
-    # Sync media files
-    os.system(f'rsync -avz media/ {DEPLOY_USER}@{DEPLOY_HOST}:{PROJECT_PATH}/media/')
+            
+    restart_services(c)
