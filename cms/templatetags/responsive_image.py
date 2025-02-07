@@ -1,6 +1,6 @@
 from django import template
 from django.utils.safestring import mark_safe
-from cms.settings import IMAGE_SETTINGS
+from ..models import SiteSettings
 
 register = template.Library()
 
@@ -11,7 +11,7 @@ def responsive_image(image_field, alt_text="",  css_class="", sizes=None):
 
     :param image_field: The ImageField instance (e.g., `post.featured_image`)
     :param alt_text: Alt text for the image (default: empty string)
-    :param sizes: A list of sizes for the srcset (default: IMAGE_SETTINGS['SIZES'])
+    :param sizes: A list of sizes for the srcset (default: site_settings.image_sizes)
     :param css_class: CSS class for the <img> tag (default: empty string)
     :return: HTML <img> tag
     usage : {% responsive_image post.featured_image alt_text=post.title css_class="rounded-lg shadow-lg" %}
@@ -23,8 +23,10 @@ def responsive_image(image_field, alt_text="",  css_class="", sizes=None):
     # Validate that the object has a URL
     if not hasattr(image_field, 'url'):
         raise ValueError("The provided image_field does not have a valid URL.")
+    
+    site_settings = SiteSettings.get_settings()
 
-    sizes = IMAGE_SETTINGS['SIZES']
+    sizes = site_settings.image_sizes
     base_url, ext = str(image_field.url).rsplit('.', 1)
 
     # Generate srcset

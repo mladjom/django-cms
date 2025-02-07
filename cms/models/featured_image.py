@@ -60,20 +60,6 @@ def image_upload_path(instance, filename):
         ),
         filename
     )
-
-def image_upload_path(instance, filename):
-    """Generate dynamic upload path for images."""
-    site_settings = SiteSettings.get_settings()
-    model_name = instance.__class__.__name__.lower()
-    return os.path.join(
-        site_settings.image_upload_path_format.format(
-            model_name=model_name,
-            year=datetime.now().strftime('%Y'),
-            month=datetime.now().strftime('%m'),
-            day=datetime.now().strftime('%d'),
-        ),
-        filename
-    )
     
 class FeaturedImageModel(models.Model):
     featured_image = models.ImageField(

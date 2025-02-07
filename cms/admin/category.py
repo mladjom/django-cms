@@ -14,7 +14,7 @@ class CategoryAdmin(DeleteWithImageMixin, admin.ModelAdmin):
     
     fieldsets = (
         (_('Basic Information'), {
-            'fields': ('name', 'slug' 'description')
+            'fields': ('name', 'slug', 'description')
         }),
         (_('Featured Image'), {
             'fields': ('featured_image', 'featured_image_preview'),

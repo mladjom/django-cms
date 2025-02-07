@@ -1,6 +1,7 @@
 {% extends "base.html" %}
 {% load i18n %}
 {% load blog_filters %}
+{% load responsive_image %}
 
 {% block content %}
 <article class="max-w-3xl mx-auto">
@@ -24,12 +25,16 @@
     
     {% if post.featured_image %}
         <figure class="mb-8">
-            <img src="{{ post.featured_image.url }}" 
+            {% responsive_image post.featured_image alt_text=post.title css_class="w-full h-auto rounded-lg object-cover" %}
+        </figure>
+    {% elif post.category.featured_image %}  
+        <figure class="mb-12">           
+            <img src="{{ post.category.featured_image.url }}" 
                 alt="{{ post.title }}"
-                class="w-full h-auto rounded-lg object-cover">
+                class="w-full h-auto rounded-lg object-cover">    
         </figure>
     {% else %}
-        <figure class="mb-12">
+        <figure class="mb-12">           
             <img src="https://placehold.co/768x432" 
                 alt="{{ post.title }}"
                 class="w-full h-auto rounded-lg object-cover">    

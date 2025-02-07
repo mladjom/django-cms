@@ -81,7 +81,7 @@ class SiteSettings(models.Model):
     )
     image_upload_path_format = models.CharField(
         max_length=255,
-        default="{model_name}s/{year}/{month}/{day}",
+        default="{model_name}/{year}/{month}/{day}",
         verbose_name=_("Upload Path Format"),
         help_text=_("Format string for upload path. Available variables: {model_name}, {year}, {month}, {day}")
     )
@@ -89,15 +89,6 @@ class SiteSettings(models.Model):
     class Meta:
         verbose_name = _('Settings')
         verbose_name_plural = _('Settings')
-
-    # def get_image_settings(self):
-    #     """Returns image settings in the original dictionary format"""
-    #     return {
-    #         'SIZES': self.image_sizes,
-    #         'WEBP_QUALITY': self.image_webp_quality,
-    #         'ASPECT_RATIO': (self.image_aspect_ratio_width, self.image_aspect_ratio_height),
-    #         'UPLOAD_PATH_FORMAT': self.image_upload_path_format
-    #     }
 
     def __str__(self):
         return self.site_name  
