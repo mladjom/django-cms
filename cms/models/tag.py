@@ -6,6 +6,7 @@ from django.urls import reverse
 class Tag(models.Model):
     name = models.CharField(max_length=100, verbose_name=_('Tag Name'))
     slug = models.SlugField(max_length=100, unique=True, verbose_name=_('Slug'))
+    description = models.TextField(blank=True, verbose_name=_('Description'))
     meta_title = models.CharField(max_length=200, blank=True, verbose_name=_('Meta Title'))
     meta_description = models.TextField(max_length=160, blank=True, verbose_name=_('Meta Description'))
     view_count = models.PositiveIntegerField(default=0, editable=False, verbose_name=_('View Count'))

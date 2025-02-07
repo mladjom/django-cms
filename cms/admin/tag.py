@@ -9,6 +9,20 @@ class TagAdmin(admin.ModelAdmin):
     readonly_fields = ('view_count',)
     save_on_top = True
     
+    fieldsets = (
+        (_('Basic Information'), {
+            'fields': ('name', 'slug' 'description')
+        }),
+        (_('SEO'), {
+            'fields': ('meta_title', 'meta_description'),
+            'classes': ('collapse',)
+        }),
+        (_('Publication Settings'), {
+            'fields': ('view_count',),
+            'classes': ('collapse',)
+        }),
+    )      
+    
     def post_count(self, obj):
         return obj.posts.count()
     post_count.short_description = _('Posts')

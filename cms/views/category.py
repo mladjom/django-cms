@@ -16,7 +16,7 @@ class CategoryListView(BaseMixin, SEOMetadataMixin, BreadcrumbsMixin, SchemaMixi
     model = Category
     template_name = 'blog/category_list.html'
     context_object_name = 'categories'
-    paginate_by = 3
+    paginate_by = 6
     page_kwarg = 'page'
     
     def get_queryset(self):
@@ -27,6 +27,8 @@ class CategoryListView(BaseMixin, SEOMetadataMixin, BreadcrumbsMixin, SchemaMixi
             cached_queryset = list(
                 Category.objects.annotate(
                     post_count=Count('posts', filter=Q(posts__status=1))
+                ).filter(
+                    post_count__gt=0
                 ).order_by('name')
             )
             cache.set(cache_key, cached_queryset, 3600)  # 1-hour cache
@@ -58,9 +60,13 @@ class CategoryListView(BaseMixin, SEOMetadataMixin, BreadcrumbsMixin, SchemaMixi
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['pagination_base_url'] = reverse('category_list')
-        context['schema'] = json.dumps(self.get_schema())
-        context['schema_breadcrumbs'] = json.dumps(self.get_schema_breadcrumbs())
+        paginate_base_url = reverse('category_list')
+        context.update({
+            'paginate_base_url': paginate_base_url,
+            'schema': json.dumps(self.get_schema()),
+            'schema_breadcrumbs': json.dumps(self.get_schema_breadcrumbs())
+        })
+        
         return context
 
     def get_meta_title(self):
@@ -78,7 +84,7 @@ class CategoryView(ViewCountMixin, SEOMetadataMixin, BreadcrumbsMixin, SchemaMix
     model = Category
     template_name = 'blog/category_posts.html'
     context_object_name = 'posts'
-    paginate_by = 2
+    paginate_by = 6
     page_kwarg = 'page'
 
     
@@ -126,7 +132,7 @@ class CategoryView(ViewCountMixin, SEOMetadataMixin, BreadcrumbsMixin, SchemaMix
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['category'] = self.category 
-        context['pagination_base_url'] = f"category/{self.category.slug}"  # Base URL for pagination
+        context['paginate_base_url'] = reverse('category_posts', kwargs={'slug': self.category.slug})
         context['schema'] = json.dumps(self.get_schema())
         context['schema_breadcrumbs'] = json.dumps(self.get_schema_breadcrumbs())
         return context

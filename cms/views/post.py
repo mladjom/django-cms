@@ -142,4 +142,4 @@ class PostDetailView(ViewCountMixin, SEOMetadataMixin, SchemaMixin, BreadcrumbsM
             {'name': _('Posts'), 'url': reverse('post_list')},
             {'name': post.title, 'url': post.get_absolute_url()}
         ])
-        return breadcrumbs 
+        return breadcrumbs
