@@ -5,9 +5,9 @@ from django.utils.decorators import method_decorator
 from django.views.decorators.cache import cache_control
 from django.utils.translation import gettext as _
 from django.views.generic import ListView
-from cms.models import Category, Post
-from cms.settings import BLOG_SETTINGS
-from cms.views.mixins import BaseMixin, BreadcrumbsMixin, SchemaMixin, SEOMetadataMixin, ViewCountMixin
+from ..models import Category, Post
+from ..models import SiteSettings
+from ..views.mixins import BaseMixin, BreadcrumbsMixin, SchemaMixin, SEOMetadataMixin, ViewCountMixin
 import json
 from django.shortcuts import get_object_or_404
 
@@ -35,12 +35,24 @@ class CategoryListView(BaseMixin, SEOMetadataMixin, BreadcrumbsMixin, SchemaMixi
         
         return cached_queryset
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        paginate_base_url = reverse('category_list')
+        context.update({
+            'paginate_base_url': paginate_base_url,
+            'schema': json.dumps(self.get_schema()),
+            'schema_breadcrumbs': json.dumps(self.get_schema_breadcrumbs())
+        })
+        
+        return context
+
     def get_schema(self):
+        site_settings = SiteSettings.objects.first()
         schema = {
             **self.get_base_schema(),
             "@type": "CollectionPage",
-            "name": BLOG_SETTINGS['CATEGORY']['TITLE'],
-            "description": BLOG_SETTINGS['CATEGORY']['DESCRIPTION'],
+            "name": site_settings.blog_category_tagline,
+            "description": site_settings.blog_category_description,
             "mainEntity": {
                 "@type": "ItemList",
                 "numberOfItems": len(self.get_queryset()),
@@ -58,22 +70,13 @@ class CategoryListView(BaseMixin, SEOMetadataMixin, BreadcrumbsMixin, SchemaMixi
         }
         return schema
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        paginate_base_url = reverse('category_list')
-        context.update({
-            'paginate_base_url': paginate_base_url,
-            'schema': json.dumps(self.get_schema()),
-            'schema_breadcrumbs': json.dumps(self.get_schema_breadcrumbs())
-        })
-        
-        return context
-
     def get_meta_title(self):
-        return str(BLOG_SETTINGS['CATEGORY']['TITLE'])
+        site_settings = SiteSettings.objects.first()
+        site_settings.blog_category_title
     
     def get_meta_description(self):
-        return str(BLOG_SETTINGS['CATEGORY']['DESCRIPTION'])
+        site_settings = SiteSettings.objects.first()
+        site_settings.blog_category_description
 
     def get_breadcrumbs(self):
         breadcrumbs = super().get_breadcrumbs()

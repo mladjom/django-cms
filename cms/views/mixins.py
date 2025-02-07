@@ -1,10 +1,10 @@
-from cms.settings import SITE_SETTINGS
 from django.utils.decorators import method_decorator
 from django.views.decorators.cache import cache_page, cache_control
 from django.db.models import F
 from django.db.transaction import atomic
 from django.utils.translation import gettext as _
 from datetime import datetime
+from ..models import SiteSettings
 
 class BaseMixin:
     @method_decorator(cache_page(60 * 15))  # 15-minute cache
@@ -84,6 +84,7 @@ class SchemaMixin:
     """Mixin to provide base schema generation for different view types"""
     
     def get_base_schema(self):
+        site_settings = SiteSettings.objects.first()
         """
         Provide a base schema with common properties for all pages
         """
@@ -95,10 +96,10 @@ class SchemaMixin:
             },
             "publisher": {
                 "@type": "Organization",
-                "name": SITE_SETTINGS['NAME'],  
+                "name": site_settings.site_name,  
                 "logo": {
                     "@type": "ImageObject",
-                    "url": self.request.build_absolute_uri(SITE_SETTINGS['LOGO'])
+                    #   "url": self.request.build_absolute_uri(SITE_SETTINGS['LOGO'])
                 }
             },
             "url": self.request.build_absolute_uri(),

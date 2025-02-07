@@ -3,7 +3,7 @@ from django.views.generic import TemplateView
 from cms.models import Post, Category
 from django.db.models import Count, Q
 from cms.views.mixins import SEOMetadataMixin, SchemaMixin
-from cms.settings import SITE_SETTINGS
+from ...models import SiteSettings
 
 class HomeView(SEOMetadataMixin, SchemaMixin, TemplateView):
     #model = Post
@@ -16,13 +16,13 @@ class HomeView(SEOMetadataMixin, SchemaMixin, TemplateView):
         ).select_related('author', 'category').prefetch_related('tags')[:5]
 
     def get_schema(self):
-
+        site_settings = SiteSettings.objects.first()
         schema = {
             **self.get_base_schema(),
             "@type": "WebPage",
-            "name": f"{SITE_SETTINGS['NAME']} - {SITE_SETTINGS['TAGLINE']}",
-            "description": SITE_SETTINGS['DESCRIPTION'],
-            "headline": SITE_SETTINGS['TAGLINE'],
+            "name": site_settings.site_name,
+            "description": site_settings.site_description,
+            "headline": site_settings.site_tagline,
             "mainEntity": {
                  "@type": "ItemList",
                 "itemListElement": [
@@ -68,7 +68,9 @@ class HomeView(SEOMetadataMixin, SchemaMixin, TemplateView):
         return context
 
     def get_meta_title(self):
-        return f"{SITE_SETTINGS['NAME']} - {SITE_SETTINGS['TAGLINE']}"
+        site_settings = SiteSettings.objects.first()        
+        return str(site_settings.site_tagline)
     
     def get_meta_description(self):
-        return str(SITE_SETTINGS['DESCRIPTION'])
+        site_settings = SiteSettings.objects.first()        
+        return str(site_settings.site_description)

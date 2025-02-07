@@ -1,9 +1,9 @@
 from django.urls import reverse
 from django.views.generic import ListView, DetailView
 from django.utils.translation import gettext as _
-from cms.models import Post
-from cms.settings import SITE_SETTINGS, BLOG_SETTINGS
-from cms.views.mixins import SEOMetadataMixin, BreadcrumbsMixin, SchemaMixin, ViewCountMixin
+from ..models import Post
+from ..models import SiteSettings
+from ..views.mixins import SEOMetadataMixin, BreadcrumbsMixin, SchemaMixin, ViewCountMixin
 import json
 
 class PostListView(SEOMetadataMixin, BreadcrumbsMixin, SchemaMixin, ListView):
@@ -21,29 +21,6 @@ class PostListView(SEOMetadataMixin, BreadcrumbsMixin, SchemaMixin, ListView):
         ).prefetch_related(
             'tags'
         ).order_by('-created_at')
- 
-    def get_schema(self):
-        schema = {
-            **self.get_base_schema(),
-            "@type": "Blog",
-            "name": BLOG_SETTINGS['TITLE'],
-            "description": BLOG_SETTINGS['DESCRIPTION'],
-            "blogPost": [
-                {
-                    "@type": "BlogPosting",
-                    "headline": post.title,
-                    "url": self.request.build_absolute_uri(post.get_absolute_url()),
-                    "datePublished": post.created_at.isoformat(),
-                    "dateModified": post.updated_at.isoformat(),
-                    "author": {
-                        "@type": "Person",
-                        "name": post.author.get_full_name() or post.author.username
-                    }
-                }
-                for post in self.get_queryset()[:5] 
-            ]
-        }
-        return schema
         
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -56,12 +33,39 @@ class PostListView(SEOMetadataMixin, BreadcrumbsMixin, SchemaMixin, ListView):
         })
         
         return context
+    
+    def get_schema(self):
+        site_settings = SiteSettings.objects.first()  # Assuming only one SiteSettings instance exists
+        posts = self.get_queryset()[:5]  # Evaluate queryset once
+        schema = {
+            **self.get_base_schema(),
+            "@type": "Blog",
+            "name": site_settings.blog_title,
+            "description": site_settings.blog_description,
+            "blogPost": [
+                {
+                    "@type": "BlogPosting",
+                    "headline": post.title,
+                    "url": self.request.build_absolute_uri(post.get_absolute_url()),
+                    "datePublished": post.created_at.isoformat(),
+                    "dateModified": post.updated_at.isoformat(),
+                    "author": {
+                        "@type": "Person",
+                        "name": post.author.get_full_name() or post.author.username
+                    }
+                }
+                for post in posts
+            ]
+        }
+        return schema
 
     def get_meta_title(self):
-        return str(BLOG_SETTINGS['TITLE'])
-    
+        site_settings = SiteSettings.objects.first()
+        return str(site_settings.blog_title)
+
     def get_meta_description(self):
-        return str(BLOG_SETTINGS['DESCRIPTION'])
+        site_settings = SiteSettings.objects.first()
+        return str(site_settings.blog_description) 
 
     def get_breadcrumbs(self):
         breadcrumbs = super().get_breadcrumbs()

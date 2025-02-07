@@ -81,7 +81,6 @@ class FeaturedImageModel(models.Model):
             return {}
         
         variants = {}
-        base_path = os.path.dirname(self.featured_image.path)
         original_name = os.path.basename(self.featured_image.name)
         # Keep the full filename except dimensions and extension
         base_name = '-'.join(original_name.split('-')[:-1]) if '-' in original_name else original_name.split('.')[0]
