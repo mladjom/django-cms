@@ -1,5 +1,6 @@
 from django.contrib import admin
 from django.utils.translation import gettext_lazy as _
+from ..models import SiteSettings
 
 class SiteSettingsAdmin(admin.ModelAdmin):
     list_display = ('site_name', 'blog_title')
@@ -11,17 +12,21 @@ class SiteSettingsAdmin(admin.ModelAdmin):
             'fields': ('blog_title', 'blog_description', 'blog_tagline', 
                        'blog_category_title', 'blog_category_description', 'blog_category_tagline'),
         }),
+        (_('Image Settings'), {
+            'fields': (
+                'image_sizes',
+                'image_webp_quality',
+                ('image_aspect_ratio_width', 'image_aspect_ratio_height'),
+                'image_upload_path_format'
+            ),
+            'description': _('Configure image processing and storage settings')
+        }),
     )
     readonly_fields = ('id',) 
     save_on_top = True
     
     def has_add_permission(self, request):
-        """
-        Limit adding to only one instance.
-        """
-        if self.model.objects.count() >= 1:
-            return False
-        return super().has_add_permission(request)
+        return not SiteSettings.objects.exists()
 
     def has_delete_permission(self, request, obj=None):
         """

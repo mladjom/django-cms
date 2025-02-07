@@ -6,21 +6,23 @@ from django.utils.translation import gettext_lazy as _
 import logging
 from PIL import Image
 from datetime import datetime
-from cms.settings import IMAGE_SETTINGS
+from .settings import SiteSettings
 
 logger = logging.getLogger(__name__)
 
 def calculate_height(width, aspect_ratio=None):
     """Calculate height based on width and aspect ratio."""
+    site_settings = SiteSettings.get_settings()
     if aspect_ratio is None:
-        aspect_ratio = IMAGE_SETTINGS['ASPECT_RATIO']
+        aspect_ratio = (site_settings.image_aspect_ratio_width, site_settings.image_aspect_ratio_height)
     return int(width * (aspect_ratio[1] / aspect_ratio[0]))
 
 def resize_and_compress_images(image_path, base_path, base_filename, sizes=None, quality=None, aspect_ratio=None):
     """Resize and compress an image into multiple sizes."""
-    sizes = sizes or IMAGE_SETTINGS['SIZES']
-    quality = quality or IMAGE_SETTINGS['WEBP_QUALITY']
-    aspect_ratio = aspect_ratio or IMAGE_SETTINGS['ASPECT_RATIO']
+    site_settings = SiteSettings.get_settings()
+    sizes = sizes or site_settings.image_sizes
+    quality = quality or site_settings.image_webp_quality
+    aspect_ratio = aspect_ratio or (site_settings.image_aspect_ratio_width, site_settings.image_aspect_ratio_height)
 
     try:
         logger.info(f"Processing image: {image_path}")
@@ -47,10 +49,24 @@ def resize_and_compress_images(image_path, base_path, base_filename, sizes=None,
 
 def image_upload_path(instance, filename):
     """Generate dynamic upload path for images."""
-    #date_format = datetime.now().strftime('%Y/%m/%d')
+    site_settings = SiteSettings.get_settings()
     model_name = instance.__class__.__name__.lower()
     return os.path.join(
-        IMAGE_SETTINGS['UPLOAD_PATH_FORMAT'].format(
+        site_settings.image_upload_path_format.format(
+            model_name=model_name,
+            year=datetime.now().strftime('%Y'),
+            month=datetime.now().strftime('%m'),
+            day=datetime.now().strftime('%d'),
+        ),
+        filename
+    )
+
+def image_upload_path(instance, filename):
+    """Generate dynamic upload path for images."""
+    site_settings = SiteSettings.get_settings()
+    model_name = instance.__class__.__name__.lower()
+    return os.path.join(
+        site_settings.image_upload_path_format.format(
             model_name=model_name,
             year=datetime.now().strftime('%Y'),
             month=datetime.now().strftime('%m'),
@@ -73,7 +89,8 @@ class FeaturedImageModel(models.Model):
     @property
     def image_sizes(self):
         """Define the required image sizes"""
-        return IMAGE_SETTINGS['SIZES']
+        site_settings = SiteSettings.get_settings()
+        return site_settings.image_sizes
 
     def get_image_variants(self):
         """Get all image variants paths"""
@@ -84,9 +101,12 @@ class FeaturedImageModel(models.Model):
         original_name = os.path.basename(self.featured_image.name)
         # Keep the full filename except dimensions and extension
         base_name = '-'.join(original_name.split('-')[:-1]) if '-' in original_name else original_name.split('.')[0]
-        
+ 
+        site_settings = SiteSettings.get_settings()
+        aspect_ratio = (site_settings.image_aspect_ratio_width, site_settings.image_aspect_ratio_height)
+                
         for width in self.image_sizes:
-            height = self.calculate_height(width, IMAGE_SETTINGS['ASPECT_RATIO'])
+            height = self.calculate_height(width, aspect_ratio)
             filename = f"{base_name}-{width}x{height}.webp"
             relative_path = os.path.join(os.path.dirname(self.featured_image.name), filename)
             variants[width] = {
@@ -137,18 +157,21 @@ class FeaturedImageModel(models.Model):
         original_path = self.featured_image.path
         base_path = os.path.dirname(original_path)
         
+        site_settings = SiteSettings.get_settings()
+        aspect_ratio = (site_settings.image_aspect_ratio_width, site_settings.image_aspect_ratio_height)
+        
         results = resize_and_compress_images(
             image_path=original_path,
             base_path=base_path,
             base_filename=base_filename,
             sizes=self.image_sizes,
-            quality=IMAGE_SETTINGS['WEBP_QUALITY'],
-            aspect_ratio=IMAGE_SETTINGS['ASPECT_RATIO']
+            quality=site_settings.image_webp_quality,
+            aspect_ratio=aspect_ratio
         )
         
         if results:
             largest_size = max(self.image_sizes)
-            largest_height = calculate_height(largest_size, IMAGE_SETTINGS['ASPECT_RATIO'])
+            largest_height = calculate_height(largest_size, aspect_ratio)
             main_filename = f"{base_filename}-{largest_size}x{largest_height}.webp"
             new_main_path = os.path.join(base_path, main_filename)
             
@@ -197,6 +220,7 @@ class FeaturedImageModel(models.Model):
 
     def calculate_height(self, width, aspect_ratio=None):
         """Calculate height based on width and aspect ratio."""
+        site_settings = SiteSettings.get_settings()
         if aspect_ratio is None:
-            aspect_ratio = IMAGE_SETTINGS['ASPECT_RATIO']
+            aspect_ratio = (site_settings.image_aspect_ratio_width, site_settings.image_aspect_ratio_height)
         return int(width * (aspect_ratio[1] / aspect_ratio[0]))

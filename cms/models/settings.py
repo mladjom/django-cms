@@ -3,6 +3,11 @@ from django.core.cache import cache
 from django.utils.translation import gettext_lazy as _
 from django.db.models.signals import post_save
 from django.dispatch import receiver
+from django.core.validators import MinValueValidator, MaxValueValidator
+import json
+
+def default_image_sizes():
+    return [576, 768, 992, 1200]
 
 class SiteSettings(models.Model):
     site_name = models.CharField(
@@ -48,9 +53,51 @@ class SiteSettings(models.Model):
         default="Find what interests you.",
         verbose_name=_("Category Tagline")
     )
+
+    # Image Settings
+    image_sizes = models.JSONField(
+        default=default_image_sizes,
+        verbose_name=_("Image Sizes"),
+        help_text=_("List of image sizes for responsive images (in pixels)")
+    )
+
+    image_webp_quality = models.IntegerField(
+        default=85,
+        validators=[MinValueValidator(1), MaxValueValidator(100)],
+        verbose_name=_("WebP Quality"),
+        help_text=_("WebP compression quality (1-100)")
+    )
+    image_aspect_ratio_width = models.IntegerField(
+        default=16,
+        validators=[MinValueValidator(1)],
+        verbose_name=_("Aspect Ratio Width"),
+        help_text=_("Aspect ratio width value")
+    )
+    image_aspect_ratio_height = models.IntegerField(
+        default=9,
+        validators=[MinValueValidator(1)],
+        verbose_name=_("Aspect Ratio Height"),
+        help_text=_("Aspect ratio height value")
+    )
+    image_upload_path_format = models.CharField(
+        max_length=255,
+        default="{model_name}s/{year}/{month}/{day}",
+        verbose_name=_("Upload Path Format"),
+        help_text=_("Format string for upload path. Available variables: {model_name}, {year}, {month}, {day}")
+    )
     
     class Meta:
+        verbose_name = _('Settings')
         verbose_name_plural = _('Settings')
+
+    # def get_image_settings(self):
+    #     """Returns image settings in the original dictionary format"""
+    #     return {
+    #         'SIZES': self.image_sizes,
+    #         'WEBP_QUALITY': self.image_webp_quality,
+    #         'ASPECT_RATIO': (self.image_aspect_ratio_width, self.image_aspect_ratio_height),
+    #         'UPLOAD_PATH_FORMAT': self.image_upload_path_format
+    #     }
         
     @classmethod
     def load(cls):
