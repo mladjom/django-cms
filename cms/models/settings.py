@@ -98,7 +98,10 @@ class SiteSettings(models.Model):
     #         'ASPECT_RATIO': (self.image_aspect_ratio_width, self.image_aspect_ratio_height),
     #         'UPLOAD_PATH_FORMAT': self.image_upload_path_format
     #     }
-        
+
+    def __str__(self):
+        return self.site_name  
+            
     @classmethod
     def load(cls):
         """

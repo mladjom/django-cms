@@ -34,16 +34,14 @@ class SiteSettingsAdmin(admin.ModelAdmin):
         """
         return False
 
-    def save_model(self, request, obj, form, change):
-        """
-        Ensure only one instance exists.
-        """
-        if obj.pk is None:
-            try:
-                existing_obj = self.model.objects.get(pk=1)
-                obj.pk = existing_obj.pk
-            except self.model.DoesNotExist:
-                pass
-        super().save_model(request, obj, form, change)
-        
-# admin customization to prevent users from adding multiple settings manually        
+    # def save_model(self, request, obj, form, change):
+    #     """
+    #     Ensure only one instance exists.
+    #     """
+    #     if obj.pk is None:
+    #         try:
+    #             existing_obj = self.model.objects.get(pk=1)
+    #             obj.pk = existing_obj.pk
+    #         except self.model.DoesNotExist:
+    #             pass
+    #     super().save_model(request, obj, form, change)
