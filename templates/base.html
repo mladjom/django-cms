@@ -15,7 +15,9 @@
     {% if schema_breadcrumbs %}
     <script type="application/ld+json">{{ schema_breadcrumbs|safe }}</script>
     {% endif %}
-
+    <!-- RSS/Atom Feeds -->
+    <link rel="alternate" type="application/rss+xml" title="{{ blog_title }}" href="{% url 'rss_feed' %}">
+    <link rel="alternate" type="application/atom+xml" title="{{ blog_title }}" href="{% url 'atom_feed' %}">
 
     <!-- Preconnects and Fonts -->       
     <link rel="preconnect" href="https://fonts.googleapis.com">

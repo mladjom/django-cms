@@ -31,10 +31,10 @@ urlpatterns = [
     path('tag/<slug:slug>/page-<int:page>/', TagView.as_view(), name='tagged_paginated'),
 
     # **Place feed URLs BEFORE the catch-all page URL**
-    # path('feed/', BlogFeed(), name='rss_feed'),
-    # path('feed/atom/', BlogAtomFeed(), name='atom_feed'),
-    # path('category/<slug:slug>/feed/', CategoryFeed(), name='category_rss_feed'),
-    # path('category/<slug:slug>/feed/atom/', CategoryAtomFeed(), name='category_atom_feed'),
+    path('feed/', BlogFeed(), name='rss_feed'),
+    path('feed/atom/', BlogAtomFeed(), name='atom_feed'),
+    path('category/<slug:slug>/feed/', CategoryFeed(), name='category_rss_feed'),
+    path('category/<slug:slug>/feed/atom/', CategoryAtomFeed(), name='category_atom_feed'),
 
     # Sitemap URL
     path('sitemap.xml', sitemap, {'sitemaps': sitemaps}, name='django.contrib.sitemaps.views.sitemap'),
