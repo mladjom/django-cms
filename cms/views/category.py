@@ -47,7 +47,7 @@ class CategoryListView(BaseMixin, SEOMetadataMixin, BreadcrumbsMixin, SchemaMixi
         return context
 
     def get_schema(self):
-        site_settings = SiteSettings.objects.first()
+        site_settings = SiteSettings.get_settings()
         schema = {
             **self.get_base_schema(),
             "@type": "CollectionPage",
@@ -71,11 +71,11 @@ class CategoryListView(BaseMixin, SEOMetadataMixin, BreadcrumbsMixin, SchemaMixi
         return schema
 
     def get_meta_title(self):
-        site_settings = SiteSettings.objects.first()
+        site_settings = SiteSettings.get_settings()
         site_settings.blog_category_title
     
     def get_meta_description(self):
-        site_settings = SiteSettings.objects.first()
+        site_settings = SiteSettings.get_settings()
         site_settings.blog_category_description
 
     def get_breadcrumbs(self):

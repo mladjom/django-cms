@@ -2,8 +2,7 @@ from .category import CategoryAdmin
 from .tag import TagAdmin
 from .post import PostAdmin
 from .page import PageAdmin
-from ..models import Category, Tag, Post, Page
-from ..models import SiteSettings
+from ..models import Category, Tag, Post, Page, SiteSettings
 from .settings import SiteSettingsAdmin
 from django.contrib import admin
 

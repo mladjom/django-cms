@@ -4,7 +4,6 @@ from django.utils.translation import gettext_lazy as _
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.core.validators import MinValueValidator, MaxValueValidator
-import json
 
 def default_image_sizes():
     return [576, 768, 992, 1200]

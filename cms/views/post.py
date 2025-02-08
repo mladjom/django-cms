@@ -35,7 +35,7 @@ class PostListView(SEOMetadataMixin, BreadcrumbsMixin, SchemaMixin, ListView):
         return context
     
     def get_schema(self):
-        site_settings = SiteSettings.objects.first()  # Assuming only one SiteSettings instance exists
+        site_settings = SiteSettings.get_settings()
         posts = self.get_queryset()[:5]  # Evaluate queryset once
         schema = {
             **self.get_base_schema(),
@@ -60,11 +60,11 @@ class PostListView(SEOMetadataMixin, BreadcrumbsMixin, SchemaMixin, ListView):
         return schema
 
     def get_meta_title(self):
-        site_settings = SiteSettings.objects.first()
+        site_settings = SiteSettings.get_settings()
         return str(site_settings.blog_title)
 
     def get_meta_description(self):
-        site_settings = SiteSettings.objects.first()
+        site_settings = SiteSettings.get_settings()
         return str(site_settings.blog_description) 
 
     def get_breadcrumbs(self):

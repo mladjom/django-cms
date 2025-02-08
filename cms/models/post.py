@@ -49,3 +49,12 @@ class Post(FeaturedImageModel, models.Model):
         soup = BeautifulSoup(self.content, 'html.parser')
         self.content = soup.prettify()  # Prettify the HTML            
         super(Post, self).save(*args, **kwargs)
+
+    # Important to implement
+    def get_featured_image_url(self):
+        """Returns the post's featured image, or the category's image if unavailable."""
+        if self.featured_image:
+            return self.featured_image.url
+        elif self.category.featured_image:
+            return self.category.featured_image.url
+        return None  # Or return a default image URL
