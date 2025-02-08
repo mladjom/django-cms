@@ -11,7 +11,7 @@ class TagAdmin(admin.ModelAdmin):
     
     fieldsets = (
         (_('Basic Information'), {
-            'fields': ('name', 'slug' 'description')
+            'fields': ('name', 'slug', 'description')
         }),
         (_('SEO'), {
             'fields': ('meta_title', 'meta_description'),
