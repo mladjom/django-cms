@@ -35,7 +35,6 @@ def log_command(command, result):
         if result.stdout:
             logger.debug(f"Output: {result.stdout}")
 
-
 @task
 def install_system_packages(c):
     """Install required system packages."""
@@ -106,6 +105,12 @@ def copy_production_env(c, local_path='.env.production'):
     finally:
         # Cleanup
         conn.run('rm -rf /tmp/env_transfer')
+        
+def ensure_directory_permissions(conn, path):
+    """Ensure proper permissions on directory and contents"""
+    with conn.sudo():
+        conn.run(f'chown -R {conn.user}:www-data {path}')
+        conn.run(f'chmod -R g+w {path}')
             
 @task
 def deploy(c):
@@ -148,7 +153,13 @@ def restart_services(c):
     """Restart web server and related services."""
     conn.sudo('systemctl restart gunicorn', password=sudo_password)
     conn.sudo('systemctl restart nginx', password=sudo_password)
-
+    
+@task
+def quick_deploy(c):
+    """Quick deployment without system updates."""
+    deploy(c)
+    restart_services(c)
+    
 @task
 def full_deploy(c):
     """Complete deployment process with environment setup"""
@@ -159,11 +170,7 @@ def full_deploy(c):
     deploy(c)
     restart_services(c)
 
-@task
-def quick_deploy(c):
-    """Quick deployment without system updates."""
-    deploy(c)
-    restart_services(c)
+
 
 @task
 def backup_database(c):
