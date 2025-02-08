@@ -1,17 +1,15 @@
 {% extends "base.html" %}
 {% load i18n %}
+{% load responsive_image %}
+
 {% block content %}
 <div class="max-w-5xl mx-auto">
     {% include "components/breadcrumbs.html" %}
     
     <header class="mb-12 text-center">
-        <h1 class="text-3xl  font-bold text-brand-primary mb-4">
-            {{ category_title }}
-        </h1>
-        <p class="text-text-secondary">
-            {{ category_description }}
-        </p>
-    </header>
+        <h1 class="text-4xl font-bold text-brand-primary mb-4">{{ blog_title }}</h1>
+        <p class="text-text-secondary max-w-xl mx-auto">{{ blog_description }}</p>
+      </header>
     
     <div class="grid md:grid-cols-3 gap-6">
         {% for category in categories %}
@@ -20,7 +18,7 @@
                 <a href="{{ category.get_absolute_url }}" 
                    class="hover:text-brand-accent">
                     {{ category.name }}
-                    {{ category.featured_image.url}}
+                    {% responsive_image category.featured_image alt_text=post.title css_class="w-full h-auto rounded-lg object-cover" %}
                 </a>
             </h2>
             <div class="flex justify-between items-center">

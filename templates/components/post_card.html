@@ -6,7 +6,7 @@
     {% for post in posts %}
     <article class="bg-white shadow-md rounded-lg overflow-hidden hover:shadow-lg transition-shadow duration-300">
         <div class="aspect-w-16 aspect-h-9">
-            {% responsive_image post.featured_image alt_text=post.title css_class="w-full h-auto rounded-lg object-cover" %}
+            {% responsive_image post.featured_image alt_text=post.title css_class="rounded-lg object-cover" %}
         </div>
         <div class="p-6">
             <h2 class="text-xl font-bold mb-2 text-brand-primary hover:text-brand-accent">
