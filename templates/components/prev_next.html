@@ -1,5 +1,7 @@
 {% load i18n %}
-<nav class="mt-12 flex justify-between">
+{% load blog_filters %}
+{% load responsive_image %}
+{% comment %} <nav class="mt-12 flex justify-between">
     {% if prev_post %}
     <a href="{{ prev_post.get_absolute_url }}" 
        class="flex items-center text-text-secondary hover:text-brand-accent">
@@ -18,4 +20,55 @@
         </svg>
     </a>
     {% endif %}
+</nav> {% endcomment %}
+
+{# templates/components/prev_next.html #}
+<nav class="border-t border-gray-200 mt-12 pt-12" aria-label="Post navigation">
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+        {% if previous_post %}
+        <div>
+            <span class="block text-sm font-medium text-gray-500 mb-2">Previous Post</span>
+            <a href="{{ previous_post.get_absolute_url }}" class="group">
+                <div class="flex items-start">
+                    {% if previous_post.featured_image %}
+                    <div class="flex-shrink-0 w-16 h-16 mr-4 rounded-lg overflow-hidden">
+                        {% responsive_image previous_post.featured_image alt_text=previous_post.title css_class="w-full h-full object-cover" %}
+                    </div>
+                    {% endif %}
+                    <div>
+                        <p class="text-lg font-medium text-gray-900 group-hover:text-gray-600">
+                            {{ previous_post.title }}
+                        </p>
+                        <p class="mt-1 text-sm text-gray-500">
+                            {{ previous_post.created_at|relative_date }}
+                        </p>
+                    </div>
+                </div>
+            </a>
+        </div>
+        {% endif %}
+
+        {% if next_post %}
+        <div class="md:text-right">
+            <span class="block text-sm font-medium text-gray-500 mb-2">Next Post</span>
+            <a href="{{ next_post.get_absolute_url }}" class="group">
+                <div class="flex items-start {% if next_post %}md:flex-row-reverse{% endif %}">
+                    {% if next_post.featured_image %}
+                    <div class="flex-shrink-0 w-16 h-16 {% if next_post %}md:ml-4 mr-4 md:mr-0{% else %}mr-4{% endif %} rounded-lg overflow-hidden">
+                        {% responsive_image next_post.featured_image alt_text=next_post.title css_class="w-full h-full object-cover" %}
+                    </div>
+                    {% endif %}
+                    <div>
+                        <p class="text-lg font-medium text-gray-900 group-hover:text-gray-600">
+                            {{ next_post.title }}
+                        </p>
+                        <p class="mt-1 text-sm text-gray-500">
+                            {{ next_post.created_at|relative_date }}
+                        </p>
+                    </div>
+                </div>
+            </a>
+        </div>
+        {% endif %}
+    </div>
 </nav>

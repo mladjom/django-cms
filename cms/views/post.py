@@ -99,7 +99,7 @@ class PostDetailView(ViewCountMixin, SEOMetadataMixin, SchemaMixin, BreadcrumbsM
         ).order_by('-created_at')[:3]
         
         # Add previous/next post navigation
-        context['prev_post'] = Post.objects.filter(
+        context['previous_post'] = Post.objects.filter(
             status=1,
             created_at__lt=post.created_at
         ).order_by('-created_at').first()

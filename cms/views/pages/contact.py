@@ -81,10 +81,10 @@ class ContactView(SEOMetadataMixin, SchemaMixin, BreadcrumbsMixin, TemplateView)
         schema = {
             **self.get_base_schema(),
             "@type": "WebPage",
-            "name": _("Contact Us"),
-            "description": _("Contact us for any queries"),
+            "name": _("Get in Touch"),
+            "description": _("We'd love to hear from you. Reach out to us using the form below."),
             "mainEntityOfPage": self.request.build_absolute_uri(),
-            "text": _("Contact us for any queries")
+            "text": _("We'd love to hear from you. Reach out to us using the form below.")
         }
         return schema
 
@@ -101,10 +101,10 @@ class ContactView(SEOMetadataMixin, SchemaMixin, BreadcrumbsMixin, TemplateView)
         return context
 
     def get_meta_title(self):
-        return _("Contact Us")
+        return _("Get in Touch")
 
     def get_meta_description(self):
-        return _("Contact us for any queries")
+        return _("We'd love to hear from you. Reach out to us using the form below.")
     
     def get_breadcrumbs(self):
         breadcrumbs = super().get_breadcrumbs()

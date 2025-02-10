@@ -1,3 +1,13 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@layer components {
+    .prose img {
+      @apply rounded-lg;
+    }
+    
+    .prose a {
+      @apply text-indigo-600 hover:text-indigo-500;
+    }
+  }

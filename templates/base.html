@@ -27,8 +27,11 @@
     <!-- Robots, Favicon, CSS -->
     <meta name="robots" content="noindex,follow" />
     <link rel="icon" href="{% static 'favicon.ico' %}" type="image/x-icon" />
+    {% comment %} <script src="https://unpkg.com/@tailwindcss/browser@4"></script> {% endcomment %}
     <link href="{% static 'css/style.css' %}" rel="stylesheet">
-   
+  
+    {% comment %} <script src="https://cdn.tailwindcss.com?plugins=forms,typography,aspect-ratio,line-clamp,container-queries"></script> {% endcomment %}
+    
     <!-- Open Graph and Twitter Cards -->
     <meta property="og:title" content="{{ meta_title|default:site_name }}">
     <meta property="og:description" content="{{ meta_description|default:"Default description" }}">
@@ -41,10 +44,22 @@
     <meta name="twitter:description" content="{{ meta_description|default:"Default description" }}">
     <meta name="twitter:image" content="{% static 'images/og.webp' %}">
 </head>
-<body class="antialiased text-text-primary bg-white leading-normal tracking-normal">
+<body class="flex flex-col min-h-screen bg-gray-50">
     <a href="#main-content" class="sr-only focus:not-sr-only">{% trans 'Skip to main content' %}</a>
     {% include "partials/header.html" %}
-    <main id="main-content" class="container mx-auto py-12 px-4 sm:px-6 lg:px-8">{% block content %}{% endblock %}</main>
+    <main id="main-content" class="flex-grow">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            {% block content %}{% endblock %}
+        </div>
+    </main>
     {% include "partials/footer.html" %}
+    {% block extra_js %}
+    <script>
+        // Mobile menu toggle
+        document.querySelector('.mobile-menu-button').addEventListener('click', function() {
+            document.querySelector('.mobile-menu').classList.toggle('hidden');
+        });
+    </script>
+    {% endblock %}
 </body>
 </html>

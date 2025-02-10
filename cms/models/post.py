@@ -13,6 +13,12 @@ class PostManager(models.Manager):
         return self.filter(status=1)
 
 class Post(FeaturedImageModel, models.Model):
+    # Just here as a reminder
+    STATUS_CHOICES = [
+        ('draft', 'Draft'),
+        ('review', 'Under Review'),
+        ('published', 'Published'),
+    ]
     title = models.CharField(max_length=255, unique=True, verbose_name=_('Title'))
     slug = models.SlugField(max_length=100, unique=True, verbose_name=_('Slug'))
     author = models.ForeignKey(User, on_delete=models.PROTECT, related_name='posts', verbose_name=_('Author'))
