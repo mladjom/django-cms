@@ -1,6 +1,8 @@
+{% load i18n %}
+
 {% if related_posts %}
 <section class="mt-12">
-    <h2 class="text-2xl font-bold mb-6 text-brand-primary">Related Posts</h2>
+    <h2 class="text-2xl font-bold mb-6 text-brand-primary">{% trans 'Related Posts' %}</h2>
     <div class="grid md:grid-cols-3 gap-6">
         {% for post in related_posts %}
             {% include "components/post_card.html" with post=post %}

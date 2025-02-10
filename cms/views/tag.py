@@ -8,7 +8,7 @@ import json
 class TagView(ViewCountMixin, SEOMetadataMixin, BreadcrumbsMixin, SchemaMixin, ListView):
     template_name = 'blog/tag_posts.html'
     context_object_name = 'posts'
-    paginate_by = 3 
+    paginate_by = 6
     page_kwarg = 'page'
     
     def get_queryset(self):

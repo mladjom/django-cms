@@ -12,7 +12,13 @@
         </p>
         {% endif %}
     </header>   
-    {% include "components/post_card.html" %}
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {% for post in posts %}
+    
+      {% include "components/post_card.html" %}
+      {% endfor %}
+    
+      </div>
     {% include "components/pagination.html" %}
 </div>
 {% endblock %}

@@ -72,11 +72,11 @@ class CategoryListView(BaseMixin, SEOMetadataMixin, BreadcrumbsMixin, SchemaMixi
 
     def get_meta_title(self):
         site_settings = SiteSettings.get_settings()
-        site_settings.blog_category_title
+        return site_settings.blog_category_title
     
     def get_meta_description(self):
         site_settings = SiteSettings.get_settings()
-        site_settings.blog_category_description
+        return site_settings.blog_category_description
 
     def get_breadcrumbs(self):
         breadcrumbs = super().get_breadcrumbs()
