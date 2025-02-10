@@ -87,10 +87,16 @@
                     <span>{{ post.view_count }} views</span>
                     <span aria-hidden="true">&middot;</span>
                     <span>{{ post.content | reading_time}}</span>
-
                 </div>
             </div>
         </div>
+        {% if user.is_staff %}
+        <div class="mt-4">
+            <a href="{% url 'admin:cms_post_change' post.id %}" class="text-sm text-blue-500 hover:underline">
+                {% trans 'Edit' %}
+            </a>
+        </div>
+        {% endif %}
     </div>
 </article>
 

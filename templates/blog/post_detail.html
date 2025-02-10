@@ -48,7 +48,13 @@
     <div class="markdown prose w-full break-words dark:prose-invert light mb-12">
         {{ post.content|safe }}
     </div>
-
+    {% if user.is_staff %}
+    <div class="mb-4">
+        <a href="{% url 'admin:cms_post_change' post.id %}" class="text-sm text-blue-500 hover:underline">
+            {% trans 'Edit' %}
+        </a>
+    </div> 
+    {% endif %}
     {# Tags #}
     {% if post.tags.exists %}
     <div class="mb-12">
