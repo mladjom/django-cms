@@ -10,11 +10,12 @@ from bs4 import BeautifulSoup
 import os
 
 class ExtendedRSSFeed(Feed):
-    """Base RSS feed with site settings integration"""
-    
     def __init__(self):
         super().__init__()
-        self.site_settings = SiteSettings.get_settings()
+        try:
+            self.site_settings = SiteSettings.get_settings()
+        except:
+            self.site_settings = None
 
     def item_pubdate(self, item):
         return item.created_at
@@ -23,7 +24,7 @@ class ExtendedRSSFeed(Feed):
         return item.updated_at
 
     def description(self):
-        return self.site_settings.site_description
+        return self.site_settings.site_description if self.site_settings else "Blog feed"
 
     def item_categories(self, item):
         categories = [item.category.name]
@@ -31,74 +32,50 @@ class ExtendedRSSFeed(Feed):
         return categories + tags
 
     def get_image_url(self, image_field):
-        """Get the largest size WebP version of the image"""
-        if not image_field:
+        if not image_field or not hasattr(image_field, 'url') or not self.site_settings:
             return None
-            
-        if not hasattr(image_field, 'url'):
-            return None
-            
         base_url, ext = str(image_field.url).rsplit('.', 1)
         largest_size = max(self.site_settings.image_sizes)
         return f"{base_url}-{largest_size}w.webp"
 
     def item_enclosure_url(self, item):
+        if not self.site_settings:
+            return None
         featured_image_url = item.get_featured_image_url()
         if featured_image_url:
-            # Get the base URL from the featured image
             base_url, ext = str(featured_image_url).rsplit('.', 1)
-            
-            # Use the largest available size for the feed
             largest_size = max(self.site_settings.image_sizes)
             webp_url = f"{base_url}-{largest_size}w.webp"
-            
-            if hasattr(self, 'request'):
-                return self.request.build_absolute_uri(webp_url)
-            return webp_url
+            return self.request.build_absolute_uri(webp_url) if hasattr(self, 'request') else webp_url
         return None
 
     def item_enclosure_length(self, item):
-        """Get the size of the WebP image"""
-        if not item.featured_image:
+        if not item.featured_image or not self.site_settings:
             return 0
-            
         try:
             featured_image_url = item.get_featured_image_url()
             if featured_image_url:
                 base_url, ext = str(featured_image_url).rsplit('.', 1)
                 largest_size = max(self.site_settings.image_sizes)
                 webp_path = f"{base_url}-{largest_size}w.webp"
-                
-                if os.path.exists(webp_path):
-                    return os.path.getsize(webp_path)
-        except Exception as e:
-            print(f"Error getting image size: {e}")
+                return os.path.getsize(webp_path) if os.path.exists(webp_path) else 0
+        except:
+            return 0
         return 0
 
     def item_enclosure_mime_type(self, item):
-        if item.featured_image:
-            return 'image/webp'
-        return None
+        return 'image/webp' if item.featured_image else None
 
     def get_feed(self, obj, request):
         self.request = request
         return super().get_feed(obj, request)
 
-class ExtendedAtomFeed(ExtendedRSSFeed):
-    """Base Atom feed with site settings integration"""
-    feed_type = Atom1Feed
-    
-    def subtitle(self):
-        return self.description()
-
 class BlogFeed(ExtendedRSSFeed):
-    """Main blog RSS feed"""
-    
     def title(self):
-        return self.site_settings.blog_title
+        return self.site_settings.blog_title if self.site_settings else "Blog"
     
     def description(self):
-        return self.site_settings.blog_description
+        return self.site_settings.blog_description if self.site_settings else "Blog posts"
     
     def link(self):
         return reverse('post_list')
@@ -112,16 +89,9 @@ class BlogFeed(ExtendedRSSFeed):
     def item_description(self, item):
         if item.excerpt:
             return item.excerpt
-        
-        # Clean HTML content
         soup = BeautifulSoup(item.content, 'html.parser')
-        # Replace img tags with their alt text
         for img in soup.find_all('img'):
-            if img.get('alt'):
-                img.replace_with(f"[Image: {img['alt']}]")
-            else:
-                img.decompose()
-        
+            img.replace_with(f"[Image: {img['alt']}]" if img.get('alt') else '')
         return soup.get_text()[:200]
     
     def item_link(self, item):
@@ -130,42 +100,25 @@ class BlogFeed(ExtendedRSSFeed):
     def item_author_name(self, item):
         return item.author.get_full_name() or item.author.username
 
-    def item_extra_kwargs(self, item):
-        """Additional feed item data"""
-        return {
-            'meta_description': item.meta_description,
-            'meta_title': item.meta_title,
-            'view_count': item.view_count,
-            'is_featured': item.is_featured,
-        }
-
-class BlogAtomFeed(BlogFeed):
-    """Main blog Atom feed"""
-    feed_type = Atom1Feed
-    
-    def subtitle(self):
-        return self.description()
-
 class CategoryFeed(ExtendedRSSFeed):
-    """RSS feed for specific blog categories"""
-    
     def get_object(self, request, slug):
         self.request = request
         return Category.objects.get(slug=slug)
     
     def title(self, obj):
-        return f"{self.site_settings.blog_title} - {obj.name}"
+        blog_title = self.site_settings.blog_title if self.site_settings else "Blog"
+        return f"{blog_title} - {obj.name}"
     
     def description(self, obj):
-        return obj.description or self.site_settings.blog_category_description
+        if obj.description:
+            return obj.description
+        return self.site_settings.blog_category_description if self.site_settings else "Category posts"
     
     def link(self, obj):
         return reverse('category_posts', args=[obj.slug])
     
     def items(self, obj):
-        return Post.objects.active().filter(
-            category=obj
-        ).order_by('-created_at')[:20]
+        return Post.objects.active().filter(category=obj).order_by('-created_at')[:20]
     
     def item_title(self, item):
         return item.meta_title or item.title
@@ -173,16 +126,9 @@ class CategoryFeed(ExtendedRSSFeed):
     def item_description(self, item):
         if item.excerpt:
             return item.excerpt
-            
-        # Clean HTML content
         soup = BeautifulSoup(item.content, 'html.parser')
-        # Replace img tags with their alt text
         for img in soup.find_all('img'):
-            if img.get('alt'):
-                img.replace_with(f"[Image: {img['alt']}]")
-            else:
-                img.decompose()
-                
+            img.replace_with(f"[Image: {img['alt']}]" if img.get('alt') else '')
         return soup.get_text()[:200]
     
     def item_link(self, item):
@@ -191,19 +137,12 @@ class CategoryFeed(ExtendedRSSFeed):
     def item_author_name(self, item):
         return item.author.get_full_name() or item.author.username
 
-    def item_extra_kwargs(self, item):
-        """Additional feed item data"""
-        return {
-            'meta_description': item.meta_description,
-            'meta_title': item.meta_title,
-            'view_count': item.view_count,
-            'is_featured': item.is_featured,
-            'category_name': item.category.name
-        }
+class BlogAtomFeed(BlogFeed):
+    feed_type = Atom1Feed
+    def subtitle(self):
+        return self.description()
 
 class CategoryAtomFeed(CategoryFeed):
-    """Atom feed for specific blog categories"""
     feed_type = Atom1Feed
-    
     def subtitle(self, obj):
         return self.description(obj)
