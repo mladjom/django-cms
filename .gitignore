@@ -75,3 +75,4 @@ templates.old/
 todos/
 schema.png
 schema.dot
+fabfile/

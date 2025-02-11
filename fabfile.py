@@ -3,6 +3,8 @@ from invoke import run as local
 from decouple import config
 import logging
 import os
+import datetime
+from pathlib import Path
 
 # Configure logging
 logging.basicConfig(
@@ -170,8 +172,6 @@ def full_deploy(c):
     deploy(c)
     restart_services(c)
 
-
-
 @task
 def backup_database(c):
     """Create a database backup."""
@@ -239,3 +239,153 @@ def rollback(c, commit_hash):
             conn.run('python manage.py migrate')
             
     restart_services(c)
+
+@task
+def sync_db_to_local(c):
+    """Import production database to local environment"""
+    logger.info("Starting database sync to local...")
+    
+    # Get database credentials from local .env
+    db_name = config('DB_NAME')
+    db_user = config('DB_USER')
+    db_password = config('DB_PASSWORD')
+    
+    # Create temp directory
+    timestamp = local('date +%Y%m%d_%H%M%S', hide=True).stdout.strip()
+    temp_dir = f'/tmp/db_sync_{timestamp}'
+    local(f'mkdir -p {temp_dir}')
+    
+    try:
+        # Create remote backup - Using sudo to become postgres user first
+        dump_file = f'db_dump_{timestamp}.sql'
+        dump_command = f'cd {project_root} && pg_dump {db_name}'
+        
+        # Execute pg_dump as postgres user
+        conn.sudo(f'su - postgres -c "{dump_command}" > {project_root}/{dump_file}',
+                 password=sudo_password)
+        
+        # Ensure the dump file is readable
+        conn.sudo(f'chmod 644 {project_root}/{dump_file}', password=sudo_password)
+        
+        # Download backup
+        conn.get(f'{project_root}/{dump_file}', f'{temp_dir}/{dump_file}')
+        
+        # Drop and recreate local database
+        local(f'dropdb {db_name}', warn=True)
+        local(f'createdb {db_name}')
+        
+        # Import backup
+        local(f'psql -U {db_user} -d {db_name} -f {temp_dir}/{dump_file}')
+        
+        logger.info("Database sync completed successfully")
+        
+    except Exception as e:
+        logger.error(f"Database sync failed: {e}")
+        raise
+        
+    finally:
+        # Cleanup
+        conn.sudo(f'rm -f {project_root}/{dump_file}', password=sudo_password, warn=True)
+        local(f'rm -rf {temp_dir}')
+
+@task 
+def sync_media_to_local(c):
+    """Download media files from production"""
+    logger.info("Starting media sync to local...")
+    
+    # Get media paths
+    remote_media = f"{project_root}/media/"
+    local_media = "media/"
+    
+    # Create local media directory if it doesn't exist
+    local('mkdir -p media')
+    
+    try:
+        # Create temporary archive on server
+        with conn.cd(project_root):
+            archive_name = "media_archive.tar.gz"
+            conn.run(f'tar -czf {archive_name} media/')
+        
+        # Download archive
+        conn.get(f'{project_root}/{archive_name}', archive_name)
+        
+        # Extract locally
+        local(f'tar -xzf {archive_name}')
+        
+        logger.info("Media sync completed successfully")
+        
+    except Exception as e:
+        logger.error(f"Media sync failed: {e}")
+        raise
+        
+    finally:
+        # Cleanup
+        with conn.cd(project_root):
+            conn.run(f'rm -f {archive_name}', warn=True)
+        local(f'rm -f {archive_name}')
+
+@task
+def sync_all_to_local(c):
+    """Sync both database and media files to local"""
+    sync_db_to_local(c)
+    sync_media_to_local(c)
+    
+@task
+def sync_db_to_prod(c, force=False):
+    """Push local database to production"""
+    if not force and not input("⚠️ This will overwrite production database. Type 'yes' to confirm: ") == 'yes':
+        return
+    
+    timestamp = datetime.datetime.now().strftime('%Y%m%d_%H%M%S')
+    temp_dir = f'/tmp/db_sync_{timestamp}'
+    local(f'mkdir -p {temp_dir}')
+    dump_file = f'local_db_dump_{timestamp}.sql'
+    
+    try:
+        # Backup production first
+        backup_database(c)
+        
+        # Dump local database
+        local(f'pg_dump -U {config("DB_USER")} {config("DB_NAME")} > {temp_dir}/{dump_file}')
+        
+        # Upload dump
+        conn.put(f'{temp_dir}/{dump_file}', f'{project_root}/{dump_file}')
+        
+        # Import on production
+        with conn.cd(project_root):
+            conn.sudo(f'psql -U postgres {config("DB_NAME")} < {dump_file}', password=sudo_password)
+            
+    finally:
+        local(f'rm -rf {temp_dir}')
+        with conn.cd(project_root):
+            conn.run(f'rm -f {dump_file}', warn=True)
+
+@task
+def sync_media_to_prod(c, force=False):
+    """Push local media files to production"""
+    if not force and not input("⚠️ This will overwrite production media. Type 'yes' to confirm: ") == 'yes':
+        return
+    
+    archive_name = "local_media_archive.tar.gz"
+    
+    try:
+        # Archive local media
+        local('tar -czf local_media_archive.tar.gz media/')
+        
+        # Upload and extract
+        conn.put(archive_name, f'{project_root}/{archive_name}')
+        with conn.cd(project_root):
+            conn.run(f'tar -xzf {archive_name}')
+            conn.sudo(f'chown -R {user}:www-data media/', password=sudo_password)
+            conn.sudo(f'chmod -R g+w media/', password=sudo_password)
+            
+    finally:
+        local(f'rm -f {archive_name}')
+        with conn.cd(project_root):
+            conn.run(f'rm -f {archive_name}')
+
+@task
+def sync_all_to_prod(c, force=False):
+    """Push both database and media to production"""
+    sync_db_to_prod(c, force)
+    sync_media_to_prod(c, force)

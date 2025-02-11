@@ -21,6 +21,9 @@ class SiteSettingsAdmin(admin.ModelAdmin):
             ),
             'description': _('Configure image processing and storage settings')
         }),
+        (_('Google Analytics Settings'), {
+            'fields': ('google_analytics_id',),
+        }),
     )
     readonly_fields = ('id',) 
     save_on_top = True

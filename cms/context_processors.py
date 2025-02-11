@@ -13,4 +13,5 @@ def site_settings(request):
         "blog_category_title": settings.blog_category_title,
         "blog_category_description": settings.blog_category_description,
         "blog_category_tagline": settings.blog_category_tagline,
+        'GOOGLE_ANALYTICS_ID': settings.google_analytics_id if settings else ''
     }

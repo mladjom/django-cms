@@ -84,7 +84,12 @@ class SiteSettings(models.Model):
         verbose_name=_("Upload Path Format"),
         help_text=_("Format string for upload path. Available variables: {model_name}, {year}, {month}, {day}")
     )
-    
+    google_analytics_id = models.CharField(
+        max_length=50, 
+        blank=True, 
+        verbose_name=_("Google Analytics"),
+        help_text=_("Google Analytics tracking ID (e.g., G-XXXXXXXXXX)"))  
+        
     class Meta:
         verbose_name = _('Settings')
         verbose_name_plural = _('Settings')

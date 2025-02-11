@@ -54,12 +54,22 @@
     </main>
     {% include "partials/footer.html" %}
     {% block extra_js %}
-    <script>
-        // Mobile menu toggle
-        document.querySelector('.mobile-menu-button').addEventListener('click', function() {
-            document.querySelector('.mobile-menu').classList.toggle('hidden');
-        });
-    </script>
+        <script>
+            // Mobile menu toggle
+            document.querySelector('.mobile-menu-button').addEventListener('click', function() {
+                document.querySelector('.mobile-menu').classList.toggle('hidden');
+            });
+        </script>
+        {% if GOOGLE_ANALYTICS_ID %}
+        <!-- Google Analytics -->
+        <script async src="https://www.googletagmanager.com/gtag/js?id={{ GOOGLE_ANALYTICS_ID }}"></script>
+        <script>
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+            gtag('config', '{{ GOOGLE_ANALYTICS_ID }}');
+        </script>
+        {% endif %}
     {% endblock %}
 </body>
 </html>

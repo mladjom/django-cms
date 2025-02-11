@@ -24,7 +24,7 @@ class ExtendedRSSFeed(Feed):
         return item.updated_at
 
     def description(self):
-        return self.site_settings.site_description if self.site_settings else "Blog feed"
+        return self.site_settings.site_description if self.site_settings else _("Blog feed")
 
     def item_categories(self, item):
         categories = [item.category.name]
@@ -72,10 +72,10 @@ class ExtendedRSSFeed(Feed):
 
 class BlogFeed(ExtendedRSSFeed):
     def title(self):
-        return self.site_settings.blog_title if self.site_settings else "Blog"
+        return self.site_settings.blog_title if self.site_settings else _("Blog")
     
     def description(self):
-        return self.site_settings.blog_description if self.site_settings else "Blog posts"
+        return self.site_settings.blog_description if self.site_settings else _("Blog posts")
     
     def link(self):
         return reverse('post_list')
@@ -106,13 +106,13 @@ class CategoryFeed(ExtendedRSSFeed):
         return Category.objects.get(slug=slug)
     
     def title(self, obj):
-        blog_title = self.site_settings.blog_title if self.site_settings else "Blog"
+        blog_title = self.site_settings.blog_title if self.site_settings else _("Blog")
         return f"{blog_title} - {obj.name}"
     
     def description(self, obj):
         if obj.description:
             return obj.description
-        return self.site_settings.blog_category_description if self.site_settings else "Category posts"
+        return self.site_settings.blog_category_description if self.site_settings else _("Category posts")
     
     def link(self, obj):
         return reverse('category_posts', args=[obj.slug])
