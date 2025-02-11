@@ -76,3 +76,5 @@ todos/
 schema.png
 schema.dot
 fabfile/
+robots.txt
+newrelic.ini
