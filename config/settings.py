@@ -19,6 +19,11 @@ INTERNAL_IPS = [
     # ...
 ]
 
+GPT2_API_HOST = "192.168.1.116"
+GPT2_API_PORT = 5000
+GPT2_API_URL = f"http://{GPT2_API_HOST}:{GPT2_API_PORT}"
+
+
 # Application definition
 INSTALLED_APPS = [
     'django.contrib.admin',

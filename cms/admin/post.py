@@ -4,8 +4,11 @@ from django.utils.translation import gettext_lazy as _
 from django.utils.safestring import mark_safe
 from .mixins import DeleteWithImageMixin
 from .forms import PostForm
+from .enhanced import EnhancedModelAdmin
+from ..services import GPT2Service
+import asyncio
 
-class PostAdmin(DeleteWithImageMixin, admin.ModelAdmin):
+class PostAdmin(DeleteWithImageMixin, EnhancedModelAdmin):
     form = PostForm
     list_display = (
         'title', 'author', 'category', 'status', 
@@ -32,7 +35,7 @@ class PostAdmin(DeleteWithImageMixin, admin.ModelAdmin):
         }),
         (_('SEO'), {
             'fields': ('meta_title', 'meta_description'),
-            'classes': ('collapse',)
+            'classes': ('gpt2-enhanced',)
         }),
         (_('Publication Settings'), {
             'fields': ('status', 'is_featured', 'view_count', 'created_at', 'updated_at'),
@@ -65,4 +68,29 @@ class PostAdmin(DeleteWithImageMixin, admin.ModelAdmin):
     def save_model(self, request, obj, form, change):
         if not change:  # If creating a new post
             obj.author = request.user
+        """Override save_model to handle empty meta fields"""
+        if not obj.meta_description or not obj.meta_title:
+            loop = asyncio.new_event_loop()
+            asyncio.set_event_loop(loop)
+            gpt2_service = GPT2Service()
+            
+            try:
+                if not obj.meta_description:
+                    prompt = f"Write a compelling meta description for this blog post: {obj.title}\n\n{obj.content[:200]}"
+                    meta_description = loop.run_until_complete(
+                        gpt2_service.generate_text(prompt, max_length=160)
+                    )
+                    if meta_description:
+                        obj.meta_description = meta_description
+                
+                if not obj.meta_title:
+                    prompt = f"Write an SEO-friendly title for this blog post: {obj.title}"
+                    meta_title = loop.run_until_complete(
+                        gpt2_service.generate_text(prompt, max_length=60)
+                    )
+                    if meta_title:
+                        obj.meta_title = meta_title
+            finally:
+                loop.close()
+                            
         super().save_model(request, obj, form, change)

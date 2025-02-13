@@ -1,0 +1,19 @@
+.gpt2-generate {
+    margin-left: 10px;
+    padding: 5px 10px;
+    background: #417690;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.gpt2-generate:hover {
+    background: #2b5172;
+}
+
+.gpt2-enhanced {
+    padding: 10px;
+    border-left: 3px solid #417690;
+    margin: 10px 0;
+}

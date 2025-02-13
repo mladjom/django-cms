@@ -9,7 +9,6 @@ from .views.pages.contact import ContactView
 from .sitemaps import sitemaps
 from .feeds import BlogFeed, BlogAtomFeed, CategoryFeed, CategoryAtomFeed
 
-
 urlpatterns = [
     # Static pages
     path('', HomeView.as_view(), name='home'),
@@ -19,7 +18,7 @@ urlpatterns = [
     path('posts/', PostListView.as_view(), name='post_list'),
     path('posts/page-<int:page>/', PostListView.as_view(), name='post_list_paginated'),
     path('post/<slug:slug>/', PostDetailView.as_view(), name='post_detail'),
-    
+
     # Category URLs
     path('category/', CategoryListView.as_view(), name='category_list'),
     path('category/page-<int:page>/', CategoryListView.as_view(), name='category_list_paginated'),
