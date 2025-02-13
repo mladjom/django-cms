@@ -46,7 +46,7 @@
 
 
     <div class="markdown prose w-full break-words dark:prose-invert light mb-12">
-        <p>{{ post.excerpt|safe }}<p>
+        <p><strong>{{ post.excerpt|safe }}</strong><p>
         {{ post.content|safe }}
     </div>
     {% if user.is_staff %}
