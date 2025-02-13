@@ -26,7 +26,7 @@ class CategoryListView(BaseMixin, SEOMetadataMixin, BreadcrumbsMixin, SchemaMixi
         if not cached_queryset:
             cached_queryset = list(
                 Category.objects.annotate(
-                    post_count=Count('posts', filter=Q(posts__status=1))
+                    post_count=Count('posts', filter=Q(posts__in=Post.objects.active()))
                 ).filter(
                     post_count__gt=0
                 ).order_by('name')
@@ -93,9 +93,8 @@ class CategoryView(ViewCountMixin, SEOMetadataMixin, BreadcrumbsMixin, SchemaMix
     
     def get_queryset(self):
         self.category = get_object_or_404(Category, slug=self.kwargs['slug'])
-        return Post.objects.filter(
-            category=self.category,
-            status=1
+        return Post.objects.active().filter(
+            category=self.category
         ).select_related(
             'author', 'category'
         ).prefetch_related(

@@ -18,6 +18,7 @@ class PostAdmin(DeleteWithImageMixin, admin.ModelAdmin):
     readonly_fields = ('view_count', 'created_at', 'updated_at', 'featured_image_preview')
     filter_horizontal = ('tags',)
     date_hierarchy = 'created_at'
+    actions = ('make_draft', 'make_review', 'make_published', 'make_featured', 'make_not_featured')
     save_on_top = True
     
     fieldsets = (
@@ -39,6 +40,29 @@ class PostAdmin(DeleteWithImageMixin, admin.ModelAdmin):
             'classes': ('collapse',)
         }),
     )
+    
+    # Custom actions for status
+    @admin.action(description=_("Mark selected posts as Draft"))
+    def make_draft(modeladmin, request, queryset):
+        queryset.update(status='draft')
+
+    @admin.action(description=_("Mark selected posts as Under Review"))
+    def make_review(modeladmin, request, queryset):
+        queryset.update(status='review')
+
+    @admin.action(description=_("Mark selected posts as Published"))
+    def make_published(modeladmin, request, queryset):
+        queryset.update(status='published')
+
+    # Custom actions for is_featured
+    @admin.action(description=_("Mark selected posts as Featured"))
+    def make_featured(modeladmin, request, queryset):
+        queryset.update(is_featured=True)
+
+    @admin.action(description=_("Mark selected posts as Not Featured"))
+    def make_not_featured(modeladmin, request, queryset):
+        queryset.update(is_featured=False)
+
     
     def display_featured_image(self, obj):
         if obj.featured_image:

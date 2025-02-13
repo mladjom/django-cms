@@ -14,13 +14,12 @@ class PostListView(SEOMetadataMixin, BreadcrumbsMixin, SchemaMixin, ListView):
     page_kwarg = 'page'
     
     def get_queryset(self):
-        return self.model.objects.filter(
-            status=1  
-        ).select_related(
-            'author', 'category'
-        ).prefetch_related(
-            'tags'
-        ).order_by('-created_at')
+        return (
+            self.model.objects.active()  # Use the active() method from PostManager
+            .select_related('author', 'category')  # Optimize related fields
+            .prefetch_related('tags')  # Optimize many-to-many fields
+            .order_by('-created_at')  # Order by creation date
+        )
         
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -78,8 +77,7 @@ class PostDetailView(ViewCountMixin, SEOMetadataMixin, SchemaMixin, BreadcrumbsM
     context_object_name = 'post'
     
     def get_queryset(self):
-        return Post.objects.filter(
-            status=1
+        return Post.objects.active(
         ).select_related(
             'author', 'category'
         ).prefetch_related('tags')
@@ -91,23 +89,26 @@ class PostDetailView(ViewCountMixin, SEOMetadataMixin, SchemaMixin, BreadcrumbsM
         context['schema_breadcrumbs'] = json.dumps(self.get_schema_breadcrumbs())
                 
         # Get related posts from same category
-        context['related_posts'] = Post.objects.filter(
-            category=post.category,
-            status=1
+        context['related_posts'] = Post.objects.active().filter(
+            category=post.category
         ).exclude(
             id=post.id
         ).order_by('-created_at')[:3]
         
         # Add previous/next post navigation
-        context['previous_post'] = Post.objects.filter(
-            status=1,
-            created_at__lt=post.created_at
-        ).order_by('-created_at').first()
-        
-        context['next_post'] = Post.objects.filter(
-            status=1,
-            created_at__gt=post.created_at
-        ).order_by('created_at').first()
+        context['previous_post'] = (
+            Post.objects.active()  # Use the active() method to filter published posts
+            .filter(created_at__lt=post.created_at)  # Filter posts created before the current post
+            .order_by('-created_at')  # Order by creation date (newest first)
+            .first()  # Get the first post in the filtered queryset
+        )
+
+        context['next_post'] = (
+            Post.objects.active()  # Use the active() method to filter published posts
+            .filter(created_at__gt=post.created_at)  # Filter posts created after the current post
+            .order_by('created_at')  # Order by creation date (oldest first)
+            .first()  # Get the first post in the filtered queryset
+        )
             
         return context        
      

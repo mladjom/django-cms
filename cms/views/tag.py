@@ -13,9 +13,8 @@ class TagView(ViewCountMixin, SEOMetadataMixin, BreadcrumbsMixin, SchemaMixin, L
     
     def get_queryset(self):
         self.tag = get_object_or_404(Tag, slug=self.kwargs['slug'])
-        return Post.objects.filter(
-            tags=self.tag,
-            status=1
+        return Post.objects.active().filter(
+            tags=self.tag
         ).select_related(
             'author', 'category'
         ).prefetch_related(

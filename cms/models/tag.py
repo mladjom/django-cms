@@ -21,7 +21,3 @@ class Tag(models.Model):
         if not self.slug:
             self.slug = slugify(self.name)
         super(Tag, self).save(*args, **kwargs)
-
-class PostManager(models.Manager):
-    def active(self):
-        return self.filter(status=1)

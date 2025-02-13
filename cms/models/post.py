@@ -10,14 +10,13 @@ from bs4 import BeautifulSoup
 
 class PostManager(models.Manager):
     def active(self):
-        return self.filter(status=1)
+        return self.filter(status='published')
 
 class Post(FeaturedImageModel, models.Model):
-    # Just here as a reminder
     STATUS_CHOICES = [
-        ('draft', 'Draft'),
-        ('review', 'Under Review'),
-        ('published', 'Published'),
+        ('draft', _('Draft')),
+        ('review', _('Under Review')),
+        ('published', _('Published')),
     ]
     title = models.CharField(max_length=255, unique=True, verbose_name=_('Title'))
     slug = models.SlugField(max_length=100, unique=True, verbose_name=_('Slug'))
@@ -33,7 +32,7 @@ class Post(FeaturedImageModel, models.Model):
 
     created_at = models.DateTimeField(auto_now_add=True, verbose_name=_('Created At'))
     updated_at = models.DateTimeField(auto_now=True, verbose_name=_('Updated At'))
-    status = models.IntegerField(choices=[(0, "Draft"), (1, "Published")], default=0, verbose_name=_('Status'))
+    status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='draft', verbose_name=_('Status'))
     is_featured = models.BooleanField(default=False, verbose_name=_('Is Featured'))
     view_count = models.PositiveIntegerField(default=0, editable=False, verbose_name=_('View Count'))
 
