@@ -23,7 +23,7 @@ class PostAdmin(DeleteWithImageMixin, admin.ModelAdmin):
     
     fieldsets = (
         (_('Basic Information'), {
-            'fields': ('title', 'slug', 'author', 'content', 'excerpt')
+            'fields': ('title', 'slug', 'author', 'content', 'excerpt', 'summary')
         }),
         (_('Featured Image'), {
             'fields': ('featured_image', 'featured_image_preview'),

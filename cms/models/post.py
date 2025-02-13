@@ -23,6 +23,7 @@ class Post(FeaturedImageModel, models.Model):
     author = models.ForeignKey(User, on_delete=models.PROTECT, related_name='posts', verbose_name=_('Author'))
     content = models.TextField(verbose_name=_('Content'))
     excerpt = models.TextField(blank=True, verbose_name=_('Excerpt'))
+    summary = models.TextField(blank=True, verbose_name=_('Excerpt'))
 
     meta_title = models.CharField(max_length=200, blank=True, verbose_name=_('Meta Title'))
     meta_description = models.TextField(max_length=160, blank=True, verbose_name=_('Meta Description'))
