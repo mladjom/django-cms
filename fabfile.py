@@ -118,7 +118,9 @@ def ensure_directory_permissions(conn, path):
 def deploy(c):
     """Main deployment task with enhanced logging"""
     logger.info("Starting deployment process...")
-    
+        
+    conn.run('git config --global --add safe.directory $(pwd)')
+
     result = conn.run(f'test -d {project_root}', warn=True)
     if result.failed:
         logger.info("Project directory not found, cloning repository...")

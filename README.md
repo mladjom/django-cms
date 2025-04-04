@@ -151,13 +151,13 @@ For deployment, this project includes Fabric scripts:
 
 ```bash
 # Full deployment
-fab2 full_deploy
+fab2 full-deploy
 
 # Quick deployment (without system updates)
-fab2 quick_deploy
+fab2 quick-deploy
 
 # Database backup
-fab2 backup_database
+fab2 backup-database
 ```
 
 ## 🔧 Key Files and Directories
