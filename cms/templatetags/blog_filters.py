@@ -53,5 +53,7 @@ def relative_date(value):
             days
         ) % {'days': days}
     else:
-        # For exact date, use Django's date format translation
-        return value.strftime(_('%B %d, %Y'))  # Django will translate month names
+        # For exact date, use a proper string format instead of a translation proxy object
+        # Convert the translation proxy to a string first
+        date_format = str(_('%B %d, %Y'))
+        return value.strftime(date_format)
