@@ -44,6 +44,7 @@ venv/
 ENV/
 .env.development
 .env.production
+!.env.template
 
 # Coverage reports
 .coverage
